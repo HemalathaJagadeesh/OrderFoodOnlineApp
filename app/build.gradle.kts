@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.android.hiltdependencytesting"
+    namespace = "com.android.onlinefoodorderingapp"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.android.hiltdependencytesting"
+        applicationId = "com.android.onlinefoodorderingapp"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.play.services.maps)
     testImplementation(libs.junit)
 
     implementation("androidx.compose.ui:ui")
@@ -76,8 +77,11 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:okhttp:4.9.3")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+    //commenting, as image is not loading-
+    /*implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")*/
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     // ✅ Paging - FIX duplicate version
     implementation("androidx.paging:paging-compose:3.3.2")
@@ -93,7 +97,33 @@ dependencies {
     implementation(libs.androidx.room.paging)
     kapt("androidx.room:room-compiler:2.6.1")
 
+    implementation("androidx.compose.material3:material3:1.2.0")
+    implementation ("androidx.compose.material:material-icons-extended")
 
+    //datastore
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    //unit testing
+    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
+    testImplementation("io.kotest:kotest-assertions-core:5.8.0")
+    testImplementation("io.kotest:kotest-framework-engine:5.8.0")
+
+    //Mockk
+    testImplementation("io.mockk:mockk:1.13.8")
+    androidTestImplementation("io.mockk:mockk-android:1.13.8")
+
+    //Coroutine test support
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+
+    //UI Testing (Espresso)
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
+    }
 
     // Compose integration
     implementation(libs.hilt.navigation.compose)

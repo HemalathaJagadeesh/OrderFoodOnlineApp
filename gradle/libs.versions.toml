@@ -15,6 +15,7 @@ composeBom = "2024.06.00"
 hilt = "2.51"
 room = "2.6.1"
 paging = "3.3.2"
+playServicesMaps = "20.0.0"
 
 
 [libraries]
@@ -45,6 +46,7 @@ hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", ve
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-paging = { group = "androidx.room", name = "room-paging", version.ref = "room" }
+play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 
 
 [plugins]

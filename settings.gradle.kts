@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "HiltDependencyTesting"
+rootProject.name = "onlinefoodorderingapp"
 include(":app")
  
