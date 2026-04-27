@@ -1,4 +1,23 @@
 <resources>
     <string name="app_name">OnlineFoodOrderingApp</string>
     <string name="flash_sale_image_url">https://img.freepik.com/premium-vector/flash-sale-discount-promotion-banner_603380-265.jpg?w=2000</string>
+
+
+    <!-- OTP Screen -->
+    <string name="verify_otp">Verify OTP</string>
+    <string name="otp_sent_to">OTP sent to %1$s</string>
+    <string name="resend_in_seconds">Resend in %1$ds</string>
+    <string name="resend_otp">Resend OTP</string>
+    <string name="verify">Verify</string>
+
+    <!-- OTP Validation Errors -->
+    <string name="error_enter_otp">Enter OTP</string>
+    <string name="error_incomplete_otp">Incomplete OTP</string>
+    <string name="error_invalid_otp">Invalid OTP</string>
+
+    <!--Home Screen-->
+
+    <string name="search_for_food">Search for food...</string>
+    <string name="veg">VEG</string>
+
 </resources>

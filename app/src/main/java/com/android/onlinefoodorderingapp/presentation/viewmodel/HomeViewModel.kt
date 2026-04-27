@@ -14,7 +14,7 @@ import com.android.onlinefoodorderingapp.domain.usecase.GetCategoriesUseCase
 import com.android.onlinefoodorderingapp.domain.usecase.GetFeaturedRestaurantsUseCase
 import com.android.onlinefoodorderingapp.domain.usecase.GetPagedRestaurantUseCase
 import com.android.onlinefoodorderingapp.domain.usecase.auth.LogoutUsecase
-import com.android.onlinefoodorderingapp.presentation.screens.home.HomeAction
+import com.android.onlinefoodorderingapp.presentation.screens.home.ProfileAction
 import com.android.onlinefoodorderingapp.presentation.screens.home.dummyCategories
 import com.android.onlinefoodorderingapp.presentation.screens.home.dummyExploreItems
 import com.android.onlinefoodorderingapp.presentation.screens.home.dummyRestaurants
@@ -43,7 +43,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val getPagedRestaurants: GetPagedRestaurantUseCase,
     private val getCategories: GetCategoriesUseCase,
-    private val getFeaturedRestaurants: GetFeaturedRestaurantsUseCase
+    private val getFeaturedRestaurants: GetFeaturedRestaurantsUseCase,
+    private val logoutUsecase: LogoutUsecase
 ) : ViewModel() {
 
     //  SEARCH
@@ -64,8 +65,8 @@ class HomeViewModel @Inject constructor(
     val effect = _effect.asSharedFlow()
 
     //Profile icon actions
-    /*private val _profileActionEvent = MutableSharedFlow<UiEffect>()
-    val profileActionEvent = _profileActionEvent.asSharedFlow()*/
+    private val _profileActionEvent = MutableSharedFlow<UiEffect>()
+    val profileActionEvent = _profileActionEvent.asSharedFlow()
 
 
 
@@ -97,6 +98,9 @@ class HomeViewModel @Inject constructor(
         when(event){
             is HomeUiEvent.OnTopRestaurantsClick -> {
                 handleOnTopRestaurantsClick(event.restaurant)
+            }
+            is HomeUiEvent.OnProfileMenuClick -> {
+                handleProfileMenuAction(event.action)
             }
         }
     }
@@ -193,24 +197,40 @@ class HomeViewModel @Inject constructor(
         selectedTab.value = tab.id
     }
 
-   /* fun logout(){
-        viewModelScope.launch {
-            logoutUsecase()
-            _profileActionEvent.emit(UiEffect.NavigateToLogin)
-        }
-    }*/
+    fun handleProfileMenuAction(action: ProfileAction) {
 
-    fun onAction(action: HomeAction){
-        when(action){
-            HomeAction.OpenProfile -> {
-                //Navigate to Profile screen
+
+        when (action) {
+            ProfileAction.OpenProfile -> {
+                // _effect.tryEmit(UiEffect.NavigateToProfile)
             }
-            HomeAction.OpenSettings -> {
-                //Navigate to Settings screen
+
+            ProfileAction.OpenSettings -> {
+                //_effect.tryEmit(UiEffect.NavigateToSettings)
             }
-            HomeAction.Logout -> {
-                //logout()
+
+            ProfileAction.Logout -> {
+                viewModelScope.launch {
+                    logoutUsecase()
+                    _effect.emit(UiEffect.NavigateToLogin)
+                }
             }
         }
     }
+
+    /*fun onAction(action: ProfileAction){
+        when(action){
+            ProfileAction.OpenProfile -> {
+                //Navigate to Profile screen
+            }
+            ProfileAction.OpenSettings -> {
+                //Navigate to Settings screen
+            }
+            ProfileAction.Logout -> {
+               // logout(event.action)
+            }
+        }
+    }*/
+
 }
+

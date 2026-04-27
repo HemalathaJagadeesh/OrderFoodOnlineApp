@@ -35,14 +35,14 @@ fun AppRoot(navController: NavHostController = rememberNavController()) {
         true -> {
             NavigationHost(
                 navController = navController,
-                startDestination = Routes.HOME_SCREEN
+                startDestination = Routes.MAIN_GRAPH
             )
         }
 
         false -> {
             NavigationHost(
                 navController = navController,
-                startDestination = Routes.AUTHENTICATION_SCREEN
+                startDestination = Routes.MAIN_GRAPH
             )
         }
     }

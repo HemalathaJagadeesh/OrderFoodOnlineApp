@@ -1,14 +1,17 @@
 package com.android.onlinefoodorderingapp.presentation.screens.auth
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.android.onlinefoodorderingapp.domain.util.AuthUiState
+import com.android.onlinefoodorderingapp.presentation.util.Routes
 import com.android.onlinefoodorderingapp.presentation.viewmodel.AuthViewModel
 
 @Composable
-fun AuthContainer(viewModel: AuthViewModel = hiltViewModel()) {
+fun AuthContainer(navController: NavHostController, viewModel: AuthViewModel = hiltViewModel()) {
 
     val state by viewModel.state.collectAsState()
 
@@ -32,7 +35,12 @@ fun AuthContainer(viewModel: AuthViewModel = hiltViewModel()) {
         }
 
         is AuthUiState.LoggedIn -> {
-            // Do nothing here
+            LaunchedEffect(Unit) {
+                navController.navigate(Routes.MAIN_GRAPH) {
+                    popUpTo(Routes.AUTH_GRAPH) { inclusive = true }
+                }
+            }
+
         }
     }
 }

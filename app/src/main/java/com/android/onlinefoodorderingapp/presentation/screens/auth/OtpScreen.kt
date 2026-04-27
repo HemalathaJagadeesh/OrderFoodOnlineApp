@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -28,10 +27,13 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.android.onlinefoodorderingapp.domain.util.AuthUiState
+import com.android.onlinefoodorderingapp.presentation.theme.LocalSpacing
+import com.android.onlinefoodorderingapp.R
+import com.android.onlinefoodorderingapp.presentation.util.AppConstants
 
 @Composable
 fun OtpScreen(
@@ -40,24 +42,25 @@ fun OtpScreen(
     onVerify: () -> Unit,
     onResend: () -> Unit
 ) {
-    val isOtpValid = state.otp.length == 4
+    val isOtpValid = state.otp.length == AppConstants.OTP_LENGTH
+    val spacing = LocalSpacing.current
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .padding(spacing.large),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
 
         Column {
             Text(
-                "Verify OTP",
+                stringResource(R.string.verify_otp),
                 style = MaterialTheme.typography.headlineMedium
             )
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(spacing.small))
 
             Text(
-                "OTP sent to ${state.phone}",
+                stringResource(R.string.otp_sent_to, state.phone),
                 color = Color.Gray
             )
         }
@@ -69,21 +72,21 @@ fun OtpScreen(
                 onOtpChange = onOtpChange
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(spacing.medium))
 
             if (state.timer > 0) {
                 Text(
-                    "Resend in ${state.timer}s",
+                    stringResource(R.string.resend_in_seconds,state.timer),
                     color = Color.Gray
                 )
             } else {
                 TextButton(onClick = onResend) {
-                    Text("Resend OTP")
+                    Text(stringResource(R.string.resend_otp))
                 }
             }
 
             state.error?.let {
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(spacing.small))
                 Text(it, color = Color.Red)
             }
         }
@@ -93,13 +96,13 @@ fun OtpScreen(
             enabled = isOtpValid && !state.isLoading,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(12.dp),
+                .height(spacing.buttonHeight),
+            shape = MaterialTheme.shapes.large,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Black
             )
         ) {
-            Text("Verify", color = Color.White)
+            Text(stringResource(R.string.verify), color = Color.White)
         }
     }
 }
@@ -108,10 +111,11 @@ fun OtpScreen(
 fun OtpInput(
     otp: String,
     onOtpChange: (String) -> Unit,
-    otpLength: Int = 4
+    otpLength: Int = AppConstants.OTP_LENGTH
 ) {
     val focusRequesters = List(otpLength) { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val spacing = LocalSpacing.current
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -119,7 +123,7 @@ fun OtpInput(
     ) {
         repeat(otpLength) { index ->
 
-            val char = otp.getOrNull(index)?.toString() ?: ""
+            val char = otp.getOrNull(index)?.toString() ?: AppConstants.EMPTY_STRING
 
             OutlinedTextField(
                 value = char,
@@ -136,7 +140,7 @@ fun OtpInput(
                             newOtp.add(value[0])
                         }
 
-                        onOtpChange(newOtp.joinToString(""))
+                        onOtpChange(newOtp.joinToString(AppConstants.EMPTY_STRING))
 
                         // 👉 Move to next field
                         if (index < otpLength - 1) {
@@ -149,7 +153,7 @@ fun OtpInput(
                         // Handle delete
                         if (otp.isNotEmpty() && index < otp.length) {
                             newOtp.removeAt(index)
-                            onOtpChange(newOtp.joinToString(""))
+                            onOtpChange(newOtp.joinToString(AppConstants.EMPTY_STRING))
                         }
 
                         // 👉 Move to previous field
@@ -160,7 +164,7 @@ fun OtpInput(
                 },
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 4.dp)
+                    .padding(horizontal = spacing.medium)
                     .focusRequester(focusRequester = focusRequesters[index])
                     .onKeyEvent { event ->
                         if (
@@ -181,7 +185,7 @@ fun OtpInput(
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number
                 ),
-                shape = RoundedCornerShape(12.dp)
+                shape = MaterialTheme.shapes.medium
             )
         }
     }
@@ -191,15 +195,6 @@ fun OtpInput(
         focusRequesters.first().requestFocus()
     }
 }
-fun validateOtp(otp: String, expectedLength: Int = 4): String? {
-    if (otp.isEmpty()) return "Enter OTP"
-
-    if (otp.length < expectedLength) return "Incomplete OTP"
-
-    if (!otp.all { it.isDigit() }) return "Invalid OTP"
-
-    return null
-}
 
 @Preview
 @Composable
@@ -207,7 +202,7 @@ fun OtpScreenPreview() {
     OtpScreen(
         state = AuthUiState.OtpSent(
             phone = "+1234567890",
-            otp = "",
+            otp = AppConstants.EMPTY_STRING,
             timer = 30,
             error = null
         ),

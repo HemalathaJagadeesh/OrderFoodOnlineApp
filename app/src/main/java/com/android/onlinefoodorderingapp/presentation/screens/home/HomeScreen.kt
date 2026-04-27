@@ -1,8 +1,6 @@
 package com.android.onlinefoodorderingapp.presentation.screens.home
 
 import android.util.Log
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -41,8 +39,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -59,7 +55,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -79,6 +74,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.android.onlinefoodorderingapp.presentation.screens.home.components.ProfileMenuItem
 import com.android.onlinefoodorderingapp.presentation.util.HomeUiEvent
 import com.android.onlinefoodorderingapp.presentation.util.Routes
 import com.android.onlinefoodorderingapp.presentation.util.UiEffect
@@ -117,8 +113,13 @@ fun HomeScreen(
             when(effect){
             is UiEffect.NavigateToRestaurantDetails -> {
                 Log.d("NAV_DEBUG", "Navigating now")
-                navController.navigate(Routes.RESTAURANT_DETAILS_SCREEN)
+                navController.navigate(Routes.RESTAURANT_DETAILS)
             }
+                UiEffect.NavigateToLogin -> {
+                    navController.navigate(Routes.AUTH_GRAPH) {
+                        popUpTo(Routes.HOME) { inclusive = true }
+                    }
+                }
             }
         }
     }
@@ -142,8 +143,6 @@ fun HomeScreen(
         }
 
         is HomeUiState.Success -> {
-           /* HomeContent(uiState = uiState as HomeUiState.Success,
-                viewModel = viewModel)*/
 
             HomeContent(
                 uiState = uiState as HomeUiState.Success,
@@ -153,6 +152,7 @@ fun HomeScreen(
                 onVegToggleChange = { viewModel.onVegToggleChanged(it) },
                 onCategoryClick = viewModel::selectTab,
                 onRestaurantClick = {viewModel.onEvent(HomeUiEvent.OnTopRestaurantsClick(it))},
+                onProfileMenuAction = { viewModel.onEvent(HomeUiEvent.OnProfileMenuClick(it)) },
                 listState = listState
             )
 
@@ -172,6 +172,7 @@ fun HomeContent(
     onVegToggleChange: (Boolean) -> Unit,
     onCategoryClick: (Category) -> Unit,
     onRestaurantClick: (Restaurant) -> Unit,
+    onProfileMenuAction: (ProfileAction) -> Unit,
     listState: LazyListState
 
 ) {
@@ -259,10 +260,10 @@ fun HomeContent(
             modifier = Modifier.fillMaxSize()
         ) {
 
-            item { Spacer(modifier = Modifier.height(8.dp)) }
+            item { Spacer(modifier = Modifier.height(MaterialTheme.spacing.small)) }
+            item { FlashSaleBanner() }
 
-           /* item { FlashSaleSection() }
-
+           /*
             item { CategoriesSection() }
 
             items(20) {
@@ -310,7 +311,7 @@ fun HomeContent(
 
 
         // 🎯 COLLAPSING BANNER
-        CollapsingBanner(collapseFraction)
+        CollapsingBanner(collapseFraction,onProfileMenuAction = onProfileMenuAction)
 
         // 🔍 SEARCH BAR (animated + sticky)
        // AnimatedSearchBar(collapseFraction)
@@ -441,7 +442,7 @@ fun SectionTitle(sectionTitle: String) {
             .fillMaxWidth()
             .padding(
                 horizontal = MaterialTheme.spacing.small,
-                vertical = MaterialTheme.spacing.extraLarge
+                vertical = MaterialTheme.spacing.xLarge
             ), verticalAlignment = Alignment.CenterVertically
     ) {
         HorizontalDivider(
@@ -451,7 +452,7 @@ fun SectionTitle(sectionTitle: String) {
         )
         Text(
             text = sectionTitle,
-            modifier = Modifier.padding(horizontal = MaterialTheme.spacing.extraLarge),
+            modifier = Modifier.padding(horizontal = MaterialTheme.spacing.xLarge),
             style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Center
         )
@@ -651,22 +652,6 @@ fun RestaurantCard(
 }
 
 
-@Composable
-fun BottomBar() {
-    NavigationBar {
-        NavigationBarItem(
-            selected = true,
-            onClick = {},
-            icon = { Text("🏠") },
-            label = { Text("Delivery") })
-        NavigationBarItem(
-            selected = false,
-            onClick = {},
-            icon = { Text("🔍") },
-            label = { Text("Dining") })
-    }
-}
-
 private val previewCategories = listOf(
     Category(id = 1, name = "Pizza", imageUrl = ""),
     Category(id = 2, name = "Burger", imageUrl = ""),
@@ -679,11 +664,6 @@ private val previewExploreItems = listOf(
     ExploreItem(id = 1, title = "Offers", iconUrl = "", type = ""),
     ExploreItem(id = 2, title = "Top Picks", iconUrl = "", type = ""),
 )
-
-/*private val previewUiState = HomeUiState.Success(
-    location = "Bangalore", searchQuery = "", isVegMode = false, categories = previewCategories,
-    exploreItems = previewExploreItems, restaurants = dummyRestaurants
-)*/
 
 val dummyRestaurants = listOf(
 
@@ -889,7 +869,8 @@ fun HomeContentPreview() {
             onVegToggleChange = {},
             onCategoryClick = {},
             onRestaurantClick = {},
-            listState = LazyListState()
+            listState = LazyListState(),
+            onProfileMenuAction = {  }
         )
     }
 
@@ -1019,11 +1000,11 @@ fun SearchBarWithVegToggle(
 }
 
 @Composable
-fun CollapsingBanner(collapseFraction: Float) {
+fun CollapsingBanner(collapseFraction: Float,onProfileMenuAction: (ProfileAction) -> Unit) {
 
 
-    val maxHeight = 260.dp
-    val minHeight = 80.dp
+    val maxHeight = MaterialTheme.spacing.heroBannerHeightMax
+    val minHeight = MaterialTheme.spacing.heroBannerHeightMin
 
     val height = maxHeight - (maxHeight - minHeight) * collapseFraction
 
@@ -1045,13 +1026,11 @@ fun CollapsingBanner(collapseFraction: Float) {
     ) {
 
         // 🌄 Banner Image
-        Image(
-            painter = painterResource(id = R.drawable.ic_launcher_background),
+        AsyncImage(
+            model = "https://img.freepik.com/free-vector/food-delivery-service-fast-food-delivery-scooter-delivery-service-illustration_67394-871.jpg?w=2000",
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .matchParentSize()
-                .offset(y = imageOffset)
+            modifier = Modifier.fillMaxSize()
         )
 
         // 🌑 Gradient overlay
@@ -1068,14 +1047,14 @@ fun CollapsingBanner(collapseFraction: Float) {
                 )
         )
 
-        // 🔝 ADDRESS (moves up & disappears)
+        //ADDRESS (moves up & disappears)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
                 .offset(y = addressOffsetY)
                 .alpha(addressAlpha)
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.small),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
 
@@ -1088,7 +1067,25 @@ fun CollapsingBanner(collapseFraction: Float) {
                 )
             }
 
-           // ProfileSection(onLogoutClick = {})
+          // ProfileSection(onLogoutClick = {})
+
+            val profileMenuItems = listOf(
+                ProfileMenuItem(
+                    title = "My Profile",
+                    action = ProfileAction.OpenProfile
+                ),
+                ProfileMenuItem(
+                    title = "Settings",
+                    action = ProfileAction.OpenSettings
+                ),
+                ProfileMenuItem(
+                    title = "Logout",
+                    action = ProfileAction.Logout
+                )
+            )
+
+            ProfileMenu(menuItems = profileMenuItems , onItemClick = {action -> onProfileMenuAction(action)})
+
 
             /*Box(
                 modifier = Modifier
@@ -1112,10 +1109,10 @@ fun CollapsingBanner(collapseFraction: Float) {
             modifier = Modifier
                 .fillMaxWidth()
                 .offset(y = searchOffsetY)
-                .padding(horizontal = 16.dp),
-            shape = RoundedCornerShape(12.dp),
+                .padding(horizontal = MaterialTheme.spacing.medium),
+            shape = MaterialTheme.shapes.medium,
             elevation = CardDefaults.cardElevation(
-                if (collapseFraction > 0.9f) 6.dp else 0.dp
+                if (collapseFraction > 0.9f) MaterialTheme.spacing.small else MaterialTheme.spacing.zero
             )
         ) {
 
@@ -1124,19 +1121,19 @@ fun CollapsingBanner(collapseFraction: Float) {
                     .fillMaxWidth()
                     .height(52.dp)
                     .background(Color.White)
-                    .padding(horizontal = 12.dp),
+                    .padding(horizontal = MaterialTheme.spacing.small),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
                 Icon(Icons.Default.Search, contentDescription = null)
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(MaterialTheme.spacing.small))
 
-                Text("Search for food...", color = Color.Gray)
+                Text(stringResource(R.string.search_for_food), color = Color.Gray)
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Text("VEG", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.veg), fontWeight = FontWeight.Bold)
 
                 Switch(
                     checked = false,
@@ -1148,131 +1145,35 @@ fun CollapsingBanner(collapseFraction: Float) {
 }
 
 @Composable
-fun ProfileSection(
-    onLogoutClick: () -> Unit
+fun ProfileMenu(
+    menuItems: List<ProfileMenuItem>,
+    onItemClick: (ProfileAction) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     Box {
-        // Profile Image
         AsyncImage(
-            model = "https://cdn-icons-png.flaticon.com/512/149/149071.png",
-            contentDescription = "Profile",
+            model = "https://api.dicebear.com/7.x/avataaars/png?seed=User",
+            contentDescription = null,
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .clickable {
-                    expanded = true
-                },
-            contentScale = ContentScale.Crop
+                .clickable { expanded = true }
         )
 
-        // Dropdown Menu
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            DropdownMenuItem(
-                text = { Text("My Profile") },
-                onClick = {
-                    expanded = false
-                    // handle profile
-                }
-            )
-
-            DropdownMenuItem(
-                text = { Text("Settings") },
-                onClick = {
-                    expanded = false
-                }
-            )
-
-            DropdownMenuItem(
-                text = { Text("Logout") },
-                onClick = {
-                    expanded = false
-                    onLogoutClick()
-                }
-            )
+            menuItems.forEach { item ->
+                DropdownMenuItem(
+                    text = { Text(item.title) },
+                    onClick = {
+                        expanded = false
+                        onItemClick(item.action)
+                    }
+                )
+            }
         }
     }
-}
-
-@Composable
-fun AnimatedSearchBar(collapseFraction: Float) {
-
-    val startY = 160.dp
-    val endY = 70.dp
-
-    val offsetY = startY - (startY - endY) * collapseFraction
-
-    val elevation by animateDpAsState(
-        targetValue = if (collapseFraction > 0.8f) 6.dp else 0.dp
-    )
-
-    Card(
-        elevation = CardDefaults.cardElevation(elevation),
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .offset(y = offsetY)
-            .padding(horizontal = 16.dp)
-            .pointerInput(Unit) {}
-    ) {
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-                .background(Color.White)
-                .padding(horizontal = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Icon(Icons.Default.Search, contentDescription = null)
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Text("Search for food...", color = Color.Gray)
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Text("VEG", fontWeight = FontWeight.Bold)
-
-            Switch(
-                checked = false,
-                onCheckedChange = {}
-            )
-        }
-    }
-}
-@Composable
-fun RestaurantItemDummy() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(100.dp)
-            .padding(8.dp)
-            .background(Color.LightGray, RoundedCornerShape(12.dp))
-    )
-}
-
-@Composable
-fun FlashSaleSection() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(120.dp)
-            .padding(16.dp)
-            .background(Color(0xFFFFE0B2), RoundedCornerShape(12.dp))
-    )
-}
-
-@Composable
-fun CategoriesSection() {
-    Text(
-        "WHAT'S ON YOUR MIND?",
-        modifier = Modifier.padding(16.dp),
-        fontWeight = FontWeight.Bold
-    )
 }

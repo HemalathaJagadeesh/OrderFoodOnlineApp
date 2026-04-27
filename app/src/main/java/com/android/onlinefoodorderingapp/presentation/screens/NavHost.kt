@@ -19,6 +19,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.navigation
 import com.android.onlinefoodorderingapp.domain.model.OrderType
 import com.android.onlinefoodorderingapp.presentation.screens.auth.AuthContainer
 import com.android.onlinefoodorderingapp.presentation.screens.foodcustomization.FoodCustomizationBottomBar
@@ -39,110 +40,112 @@ fun NavigationHost(
 ) {
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-
-   // val currentBackStackEntry = navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
+    val currentRoute = navBackStackEntry?.destination?.route
     var selectedType by remember { mutableStateOf(OrderType.DELIVERY) }
 
 
-        val viewModel: RestaurantDetailViewModel =
-            hiltViewModel()
-        val state by viewModel.state.collectAsState()
+    val viewModel: RestaurantDetailViewModel = hiltViewModel()
+    val state by viewModel.state.collectAsState()
 
-        Scaffold(
-
-            topBar = {
-
-                when {
-                    currentRoute == Routes.HOME_SCREEN -> {
-                            //MainTopBar(scrollBehavior)
-                            // HomeTopBar(collapseFraction = collapseFraction)
-                        }
-
-                    currentRoute == Routes.RESTAURANT_DETAILS_SCREEN -> {
-                            RestaurantDetailsTopBar(navController)
-                        }
-                    currentRoute == Routes.FOOD_DETAILS_SCREEN -> {
-                            RestaurantDetailsTopBar(navController)
-                        }
-
+    Scaffold(
+        topBar = {
+            when (currentRoute) {
+                Routes.HOME -> {
+                    //MainTopBar(scrollBehavior)
+                    // HomeTopBar(collapseFraction = collapseFraction)
                 }
-            },
-
-            bottomBar = {
-                when (currentRoute) {
-                    Routes.HOME_SCREEN -> {
-                        MainBottomBar(
-                            selectedType = selectedType,
-                            onTypeChange = { selectedType = it })
-
-                    }
-                    Routes.FOOD_DETAILS_SCREEN -> {
-
-                        FoodCustomizationBottomBar()
-                    }
-
-                    Routes.RESTAURANT_DETAILS_SCREEN -> {
-                        // RestaurantDetailsBottomBar()
-                        if (currentRoute?.startsWith(Routes.RESTAURANT_DETAILS_SCREEN ) == true) {
-
-                                println("State: ${state.isMenuSheetOpen}")
-                                BottomSearchMenuBar(
-                                    searchText = state.searchText,
-                                    onSearchChange = viewModel::onSearchChange,
-                                    onMenuClick = viewModel::onMenuClick,
-                                    modifier = Modifier
-                                )
-                        }
-                    }
-                    else -> {}
+                Routes.RESTAURANT_DETAILS -> {
+                    RestaurantDetailsTopBar(navController)
+                }
+                Routes.FOOD_DETAILS_SCREEN -> {
+                    RestaurantDetailsTopBar(navController)
                 }
             }
+        },
+        bottomBar = {
+            when (currentRoute) {
+                Routes.HOME -> {
+                    MainBottomBar(
+                        selectedType = selectedType, onTypeChange = { selectedType = it })
 
-        ) { padding ->
+                }
 
-            NavHost(
-                navController = navController,
-                startDestination = startDestination,
-                modifier = Modifier.padding(padding)
+                Routes.FOOD_DETAILS_SCREEN -> {
+
+                    FoodCustomizationBottomBar()
+                }
+
+                Routes.RESTAURANT_DETAILS -> {
+                    // RestaurantDetailsBottomBar()
+                    if (currentRoute?.startsWith(Routes.RESTAURANT_DETAILS) == true) {
+
+                        println("State: ${state.isMenuSheetOpen}")
+                        BottomSearchMenuBar(
+                            searchText = state.searchText,
+                            onSearchChange = viewModel::onSearchChange,
+                            onMenuClick = viewModel::onMenuClick,
+                            modifier = Modifier
+                        )
+                    }
+                }
+
+                else -> {}
+            }
+        }
+
+    ) { padding ->
+
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+            modifier = Modifier.padding(padding)
+        ) {
+
+            navigation(
+                startDestination = Routes.PHONE_INPUT, route = Routes.AUTH_GRAPH
+
+            ) {
+                composable(Routes.PHONE_INPUT) {
+
+                    AuthContainer(navController)
+                }
+
+            }
+            //MAIN APP FLOW
+            navigation(
+                startDestination = Routes.HOME, route = Routes.MAIN_GRAPH
             ) {
 
-                composable(Routes.HOME_SCREEN) {
+                composable(Routes.HOME) {
                     HomeScreen(navController)
                 }
 
-                composable(Routes.RESTAURANT_DETAILS_SCREEN) {
+                composable(Routes.RESTAURANT_DETAILS) {
                     val foodId = it.arguments?.getString("foodId")
                     RestaurantDetailsScreen(navController)
                 }
 
-                composable(Routes.AUTHENTICATION_SCREEN) {
-                    AuthContainer()
-                }
-                composable(Routes.FOOD_DETAILS_SCREEN){ navBackStackEntry->
+                composable(Routes.FOOD_DETAILS_SCREEN) { navBackStackEntry ->
                     val foodid = navBackStackEntry.arguments?.getString("foodId")
                     Log.d("NAV_DEBUG", "Current route: $currentRoute")
                     println("FoodId: $foodid")
                     //FoodDetailsScreen(foodId = foodid)
                     FoodDetailsScreen1(foodId = foodid, navController = navController)
                 }
-                /*composable(Routes.LOGIN_SCREEN){
-                  //  PhoneInputScreen() { }
-                }*/
+
             }
+        }
 
     }
 
     if (state?.isMenuSheetOpen == true && viewModel != null) {
         ModalBottomSheet(
-            onDismissRequest = viewModel :: onMenuDismiss
+            onDismissRequest = viewModel::onMenuDismiss
         ) {
             MenuContent(
-                categories = state.categories,
-                onClick = {
+                categories = state.categories, onClick = {
                     viewModel.onMenuDismiss()
-                }
-            )
+                })
         }
     }
 
