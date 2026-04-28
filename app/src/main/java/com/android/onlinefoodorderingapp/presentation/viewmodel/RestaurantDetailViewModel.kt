@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.onlinefoodorderingapp.data.local.DummyData
 import com.android.onlinefoodorderingapp.domain.model.restaurantdetails.FoodItem
+import com.android.onlinefoodorderingapp.presentation.util.FoodFilter
 import com.android.onlinefoodorderingapp.presentation.util.RestaurantDetailUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -66,6 +67,7 @@ class RestaurantDetailViewModel @Inject constructor() : ViewModel() {
 
     private fun dummyFoodList() {
         _state.value = state.value.copy(
+            allFoodItems = DummyData.foodItem,
             foodItem = DummyData.foodItem
         )
     }
@@ -76,4 +78,21 @@ class RestaurantDetailViewModel @Inject constructor() : ViewModel() {
         }
 
     }
+
+    fun onFilterSelected(filter: FoodFilter) {
+        _state.update { current ->
+            val filteredItems = when (filter) {
+                FoodFilter.ALL -> current.allFoodItems
+                FoodFilter.VEG -> current.allFoodItems.filter { it.isVeg }
+                FoodFilter.NON_VEG -> current.allFoodItems.filter { !it.isVeg }
+                FoodFilter.SPICY -> current.allFoodItems.filter { it.isSpicy }
+            }
+
+            current.copy(
+                selectedFilter = filter,
+                foodItem = filteredItems
+            )
+        }
+    }
+
 }

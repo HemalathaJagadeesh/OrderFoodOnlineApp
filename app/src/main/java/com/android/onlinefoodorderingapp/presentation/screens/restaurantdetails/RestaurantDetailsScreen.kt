@@ -31,9 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,6 +49,8 @@ import com.android.onlinefoodorderingapp.R
 import com.android.onlinefoodorderingapp.domain.model.restaurantdetails.FoodItem
 import com.android.onlinefoodorderingapp.presentation.theme.spacing
 import com.android.onlinefoodorderingapp.presentation.util.AppConstants
+import com.android.onlinefoodorderingapp.presentation.util.FoodFilter
+import com.android.onlinefoodorderingapp.presentation.util.RestaurantDetailUiState
 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -82,7 +82,7 @@ fun RestaurantDetailsScreen(
             }
 
             item {
-                RestaurantInfoSection()
+                RestaurantInfoSection(state,viewModel)
             }
 
             item {
@@ -128,11 +128,15 @@ fun HeroSection(isCollapsed: Boolean) {
 /* ----------------------- Restaurant Info ------------------------ */
 
 @Composable
-fun RestaurantInfoSection() {
+fun RestaurantInfoSection(state: RestaurantDetailUiState, viewModel: RestaurantDetailViewModel) {
     Column {
         RestaurantMetaRow()
         Spacer(Modifier.height(MaterialTheme.spacing.small))
-        FilterRow()
+
+        FilterRow(selectedFilter = state.selectedFilter,
+            onFilterClick = viewModel::onFilterSelected
+        )
+
         Spacer(Modifier.height(MaterialTheme.spacing.small))
     }
 }
@@ -166,9 +170,17 @@ fun MetaItem(text: String, color: Color = Color.Black) {
 /* --------------------------- Filters ---------------------------- */
 
 @Composable
-fun FilterRow() {
-    val filters = listOf("Filter", "Veg", "Non-Veg", "Spicy")
-    var selectedFilter by remember { mutableStateOf(filters[0]) }
+fun FilterRow(
+    selectedFilter: FoodFilter,
+    onFilterClick: (FoodFilter) -> Unit
+) {
+    val filters = listOf(
+        FoodFilter.ALL to "Filter",
+        FoodFilter.VEG to "Veg",
+        FoodFilter.NON_VEG to "Non-Veg",
+        FoodFilter.SPICY to "Spicy"
+    )
+
 
     Row(
         modifier = Modifier
@@ -176,12 +188,13 @@ fun FilterRow() {
             .padding(horizontal = MaterialTheme.spacing.medium),
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
     ) {
-        filters.forEach { filter ->
+        filters.forEach { (filter, label) ->
             FilterChip(
-                text = filter,
+                text = label,
                 selected = selectedFilter == filter,
-                onClick = { selectedFilter = filter }
+                onClick = { onFilterClick(filter) }
             )
+
         }
     }
 }
@@ -280,13 +293,14 @@ private fun FoodItemImage(
         Text(
             text = stringResource(R.string.bestseller),
             style = MaterialTheme.typography.bodySmall,
+            color = Color.DarkGray,
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .offset(y = MaterialTheme.spacing.minus10)
                 .background(Color.White, MaterialTheme.shapes.small)
                 .padding(
                     horizontal = MaterialTheme.spacing.small,
-                    vertical = MaterialTheme.spacing.xxSmall
+                    vertical = MaterialTheme.spacing.xSmall
                 )
         )
 

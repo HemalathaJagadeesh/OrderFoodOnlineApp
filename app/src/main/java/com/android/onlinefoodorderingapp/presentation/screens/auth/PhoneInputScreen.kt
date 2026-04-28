@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.android.onlinefoodorderingapp.domain.util.AuthUiState
 import com.android.onlinefoodorderingapp.presentation.theme.spacing
 import com.android.onlinefoodorderingapp.R
+import com.android.onlinefoodorderingapp.presentation.util.AppConstants
 
 
 @Composable
@@ -64,7 +65,7 @@ fun PhoneInputScreen(
                 Spacer(Modifier.height(MaterialTheme.spacing.small))
 
                 Text(
-                    text = "Enter your phone number",
+                    text = stringResource(R.string.enter_your_phone_number),
                     color = Color.White.copy(alpha = 0.8f)
                 )
             }
@@ -78,7 +79,7 @@ fun PhoneInputScreen(
                     shape = MaterialTheme.shapes.medium,
                     singleLine = true,
                     leadingIcon = {
-                        Text("+91 ", color = Color.Black)
+                        Text(stringResource(R.string.country_code), color = Color.Black)
                     },
                     placeholder = { Text(stringResource(R.string.phone_number)) },
                     colors = TextFieldDefaults.colors(
@@ -95,7 +96,7 @@ fun PhoneInputScreen(
                 }
 
                 Spacer(Modifier.height(MaterialTheme.spacing.medium))
-                val isValidPhone = state.phone.length == 10
+                val isValidPhone = state.phone.length == AppConstants.PHONE_LENGTH
                 Button(
                     onClick = onContinue,
                     enabled = isValidPhone && !state.isLoading ,

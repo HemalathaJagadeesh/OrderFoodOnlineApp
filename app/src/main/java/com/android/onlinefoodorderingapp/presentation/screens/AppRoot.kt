@@ -42,8 +42,8 @@ fun AppRoot(navController: NavHostController = rememberNavController()) {
         false -> {
             NavigationHost(
                 navController = navController,
-                startDestination = Routes.MAIN_GRAPH
+                startDestination = Routes.AUTH_GRAPH
             )
         }
     }
-}//100630056008 chinnu@07
+}

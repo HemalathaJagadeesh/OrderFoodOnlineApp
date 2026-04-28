@@ -8,5 +8,8 @@ data class RestaurantDetailUiState(
     val categories: List<String> = emptyList(),
     val selectedFoodItem: FoodItem? = null,
     val foodItem: List<FoodItem> = emptyList(),
-    val isBottomSheetVisible: Boolean = false
+    val isBottomSheetVisible: Boolean = false,
+    val selectedFilter: FoodFilter = FoodFilter.ALL,
+    val allFoodItems: List<FoodItem> = emptyList()
+
 )

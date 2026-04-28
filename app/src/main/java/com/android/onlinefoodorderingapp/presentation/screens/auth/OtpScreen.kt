@@ -34,14 +34,23 @@ import com.android.onlinefoodorderingapp.domain.util.AuthUiState
 import com.android.onlinefoodorderingapp.presentation.theme.LocalSpacing
 import com.android.onlinefoodorderingapp.R
 import com.android.onlinefoodorderingapp.presentation.util.AppConstants
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun OtpScreen(
     state: AuthUiState.OtpSent,
     onOtpChange: (String) -> Unit,
     onVerify: () -> Unit,
-    onResend: () -> Unit
+    onResend: () -> Unit,
+    onBack: () -> Unit
 ) {
+
+    BackHandler {
+        onBack()   // ✅ Explicit back navigation
+    }
+
     val isOtpValid = state.otp.length == AppConstants.OTP_LENGTH
     val spacing = LocalSpacing.current
     Column(
@@ -142,7 +151,7 @@ fun OtpInput(
 
                         onOtpChange(newOtp.joinToString(AppConstants.EMPTY_STRING))
 
-                        // 👉 Move to next field
+                        // Move to next field
                         if (index < otpLength - AppConstants.VALUE_ONE) {
                             focusRequesters[index + AppConstants.VALUE_ONE].requestFocus()
                         } else {
@@ -156,7 +165,7 @@ fun OtpInput(
                             onOtpChange(newOtp.joinToString(AppConstants.EMPTY_STRING))
                         }
 
-                        // 👉 Move to previous field
+                        // Move to previous field
                         if (index > 0) {
                             focusRequesters[index - AppConstants.VALUE_ONE].requestFocus()
                         }
@@ -180,7 +189,7 @@ fun OtpInput(
                             false
                         }
                     },
-                textStyle = MaterialTheme.typography.headlineMedium,
+                textStyle = MaterialTheme.typography.headlineMedium.copy(textAlign = TextAlign.Center),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number
@@ -208,6 +217,7 @@ fun OtpScreenPreview() {
         ),
         onOtpChange = {},
         onVerify = {},
-        onResend = {}
+        onResend = {},
+        onBack = {}
     )
 }

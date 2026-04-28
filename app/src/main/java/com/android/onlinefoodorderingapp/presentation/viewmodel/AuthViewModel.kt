@@ -184,4 +184,16 @@ class AuthViewModel @Inject constructor(
             )
         }
     }
+
+    fun onOtpBack() {
+        val currentState = _state.value
+            if (currentState is AuthUiState.OtpSent) {
+                _state.value = AuthUiState.EnterPhone(
+                    phone = currentState.phone
+                )
+
+
+    }
+    }
+
 }

@@ -45,7 +45,8 @@ object DummyData {
             price = "269",
             image = "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
             id = "1",
-            isVeg = false
+            isVeg = false,
+            isSpicy = false
         ),
         FoodItem(
             name = "Ultimate Cheesy Nachos",
@@ -53,7 +54,8 @@ object DummyData {
             price = "229",
             image = "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
             id = "2",
-            isVeg = true
+            isVeg = true,
+            isSpicy = true
         ),
         FoodItem(
             name = "Spicy Chicken Crunch",
@@ -61,7 +63,8 @@ object DummyData {
             price = "269",
             image = "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
             id = "3",
-            isVeg = true
+            isVeg = true,
+            isSpicy = false
         ),
         FoodItem(
             name = "Ultimate Cheesy Nachos",
@@ -69,7 +72,8 @@ object DummyData {
             price = "229",
             image = "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
             id = "4",
-            isVeg = false
+            isVeg = false,
+            isSpicy = true
         )
     )
 

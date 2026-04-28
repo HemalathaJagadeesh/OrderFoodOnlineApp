@@ -30,7 +30,8 @@ fun AuthContainer(navController: NavHostController, viewModel: AuthViewModel = h
                 state = current,
                 onOtpChange = viewModel::onOtpChange,
                 onVerify = viewModel::verifyOtp,
-                onResend = viewModel::resendOtp
+                onResend = viewModel::resendOtp,
+                onBack = viewModel::onOtpBack
             )
         }
 

@@ -12,7 +12,6 @@ import javax.inject.Inject
 class StartupViewModel @Inject constructor(
     private val sessionManager: SessionManager
 ) : ViewModel() {
-
     val isLoggedIn = sessionManager.isLoggedIn
         .stateIn(
             viewModelScope,
