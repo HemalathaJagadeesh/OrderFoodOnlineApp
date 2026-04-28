@@ -1,4 +1,4 @@
-package com.android.onlinefoodorderingapp.data.di
+package com.android.onlinefoodorderingapp.di
 
 import com.android.onlinefoodorderingapp.data.remote.api.ZomatoApiService
 import dagger.Module

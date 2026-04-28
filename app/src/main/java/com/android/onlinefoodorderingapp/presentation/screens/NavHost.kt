@@ -23,7 +23,7 @@ import androidx.navigation.compose.navigation
 import com.android.onlinefoodorderingapp.domain.model.OrderType
 import com.android.onlinefoodorderingapp.presentation.screens.auth.AuthContainer
 import com.android.onlinefoodorderingapp.presentation.screens.foodcustomization.FoodCustomizationBottomBar
-import com.android.onlinefoodorderingapp.presentation.screens.restaurantdetails.BottomSearchMenuBar
+import com.android.onlinefoodorderingapp.presentation.screens.restaurantdetails.RestaurantDetailsBottomBar
 import com.android.onlinefoodorderingapp.presentation.screens.restaurantdetails.MenuContent
 import com.android.onlinefoodorderingapp.presentation.screens.restaurantdetails.RestaurantDetailsScreen
 import com.android.onlinefoodorderingapp.presentation.screens.restaurantdetails.RestaurantDetailsTopBar
@@ -80,7 +80,7 @@ fun NavigationHost(
                     if (currentRoute?.startsWith(Routes.RESTAURANT_DETAILS) == true) {
 
                         println("State: ${state.isMenuSheetOpen}")
-                        BottomSearchMenuBar(
+                        RestaurantDetailsBottomBar(
                             searchText = state.searchText,
                             onSearchChange = viewModel::onSearchChange,
                             onMenuClick = viewModel::onMenuClick,
@@ -120,9 +120,9 @@ fun NavigationHost(
                     HomeScreen(navController)
                 }
 
-                composable(Routes.RESTAURANT_DETAILS) {
-                    val foodId = it.arguments?.getString("foodId")
-                    RestaurantDetailsScreen(navController)
+                composable(Routes.RESTAURANT_DETAILS) {navBackStackEntry ->
+                    val restaurantId = navBackStackEntry.arguments?.getString("restaurantId")
+                    RestaurantDetailsScreen(restaurantId,navController)
                 }
 
                 composable(Routes.FOOD_DETAILS_SCREEN) { navBackStackEntry ->

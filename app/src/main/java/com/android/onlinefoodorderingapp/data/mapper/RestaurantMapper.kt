@@ -24,10 +24,11 @@ import com.android.onlinefoodorderingapp.domain.model.Restaurant
             url = url,
             location = "",
             cuisines = cuisines,
-            featured_image = featured_image,
-            has_online_delivery = "",
-            is_delivering_now = "",
-            deliveryTime = deliveryTime
+            featuredImage = featured_image,
+            hasOnlineDelivery = "",
+            isDeliveringNow = "",
+            deliveryTime = deliveryTime,
+            isVeg = isVeg
         )
     }
 
@@ -38,10 +39,11 @@ import com.android.onlinefoodorderingapp.domain.model.Restaurant
             url = url,
             location = "",
             cuisines = cuisines,
-            featured_image = featured_image,
-            has_online_delivery = "",
-            is_delivering_now = "",
-            deliveryTime = deliveryTime
+            featuredImage = featured_image,
+            hasOnlineDelivery = "",
+            isDeliveringNow = "",
+            deliveryTime = deliveryTime,
+            isVeg = isVeg
             // map other fields here
         )
     }
@@ -53,10 +55,11 @@ fun RestaurantEntity.toRestaurant(): Restaurant{
         url = imageUrl,
         location = "",
         cuisines = "",
-        featured_image = "",
-        has_online_delivery = "",
-        is_delivering_now = "",
-        deliveryTime = deliveryTime
+        featuredImage = "",
+        hasOnlineDelivery = "",
+        isDeliveringNow = "",
+        deliveryTime = deliveryTime,
+        isVeg = isVeg
 
     )
 }
@@ -67,10 +70,11 @@ fun RestaurantEntity.toDomain() : Restaurant{
         url = imageUrl,
         location = "",
         cuisines = "",
-        featured_image = "",
-        has_online_delivery = "",
-        is_delivering_now = "",
-        deliveryTime = deliveryTime
+        featuredImage = "",
+        hasOnlineDelivery = "",
+        isDeliveringNow = "",
+        deliveryTime = deliveryTime,
+        isVeg = isVeg
     )
 
 }

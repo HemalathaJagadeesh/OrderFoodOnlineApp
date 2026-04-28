@@ -1,4 +1,4 @@
-package com.android.onlinefoodorderingapp.data.di
+package com.android.onlinefoodorderingapp.di
 
 import android.content.Context
 import com.android.onlinefoodorderingapp.presentation.util.SessionManager

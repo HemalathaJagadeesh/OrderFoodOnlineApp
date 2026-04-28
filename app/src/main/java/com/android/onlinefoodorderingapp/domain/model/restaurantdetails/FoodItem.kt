@@ -5,5 +5,6 @@ data class FoodItem(
     val description: String,
     val price: String,
     val image: String,
-    val id: String
+    val id: String,
+    val isVeg: Boolean
 )

@@ -1,6 +1,6 @@
 package com.android.onlinefoodorderingapp.presentation.screens.home
 
-import android.util.Log
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,10 +27,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -40,7 +38,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -74,7 +71,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.android.onlinefoodorderingapp.data.local.DummyData.dummyRestaurants
+import com.android.onlinefoodorderingapp.data.local.DummyData.profileMenuItems
 import com.android.onlinefoodorderingapp.presentation.screens.home.components.ProfileMenuItem
+import com.android.onlinefoodorderingapp.presentation.util.AppConstants
 import com.android.onlinefoodorderingapp.presentation.util.HomeUiEvent
 import com.android.onlinefoodorderingapp.presentation.util.Routes
 import com.android.onlinefoodorderingapp.presentation.util.UiEffect
@@ -88,33 +88,16 @@ fun HomeScreen(
 
     val uiState by viewModel.uiState.collectAsState()
 
-    val isVeg = viewModel.isVeg
+    val isVeg by viewModel.isVegModeState.collectAsState()
     val listState = rememberLazyListState()
-   /* LaunchedEffect(Unit) {
+
+    LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                UiEffect.NavigateToLogin -> {
-                    navController.navigate(Routes.LOGIN_SCREEN) {
-                        popUpTo(Routes.HOME_SCREEN) { inclusive = true }
-                    }
-                }
-
                 is UiEffect.NavigateToRestaurantDetails -> {
-                    Log.d("NAV_DEBUG", "Navigating now")
-                    navController.navigate(Routes.RESTAURANT_DETAILS_SCREEN)
-                }
+                    navController.navigate(Routes.RESTAURANT_DETAILS)
                 }
 
-
-                }
-            }*/
-    LaunchedEffect(Unit) {
-        viewModel.effect.collect {effect ->
-            when(effect){
-            is UiEffect.NavigateToRestaurantDetails -> {
-                Log.d("NAV_DEBUG", "Navigating now")
-                navController.navigate(Routes.RESTAURANT_DETAILS)
-            }
                 UiEffect.NavigateToLogin -> {
                     navController.navigate(Routes.AUTH_GRAPH) {
                         popUpTo(Routes.HOME) { inclusive = true }
@@ -130,7 +113,7 @@ fun HomeScreen(
             Box(
                 modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
             ) {
-                Text("Loading...")
+                Text(stringResource(R.string.loading))
             }
         }
 
@@ -148,12 +131,13 @@ fun HomeScreen(
                 uiState = uiState as HomeUiState.Success,
                 onSearchChange = viewModel::onSearchChange,
                 onSearchSubmit = viewModel::onSearchSubmit,
-                isVeg = viewModel.isVeg,
+                isVeg = isVeg,
                 onVegToggleChange = { viewModel.onVegToggleChanged(it) },
                 onCategoryClick = viewModel::selectTab,
-                onRestaurantClick = {viewModel.onEvent(HomeUiEvent.OnTopRestaurantsClick(it))},
+                onRestaurantClick = { viewModel.onEvent(HomeUiEvent.OnTopRestaurantsClick(it)) },
                 onProfileMenuAction = { viewModel.onEvent(HomeUiEvent.OnProfileMenuClick(it)) },
-                listState = listState
+                listState = listState,
+                viewModel = viewModel
             )
 
         }
@@ -173,78 +157,10 @@ fun HomeContent(
     onCategoryClick: (Category) -> Unit,
     onRestaurantClick: (Restaurant) -> Unit,
     onProfileMenuAction: (ProfileAction) -> Unit,
-    listState: LazyListState
+    listState: LazyListState,
+    viewModel: HomeViewModel
 
 ) {
-
-   /* Box {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 80.dp)
-        ) {
-
-           *//* item {
-                // HeroBanner()
-                CollapsingHeroBanner(listState)
-            }*//*
-            item {
-                SearchBarWithVegToggle(
-                    isVeg = isVeg,
-                    onVegToggleChange = onVegToggleChange,
-                    onSearchClick = {
-                        // navigate later
-                    }
-                )
-            }
-
-            item {
-                FlashSaleBanner()
-            }
-            //CATEGORIES
-            item {
-                SectionTitle("WHAT'S ON YOUR MIND?")
-                *//* FoodCategoryRow(
-                    uiState.categories,
-                    onCategoryClick = onCategoryClick)*//*
-                FoodCategoryGrid(
-                    categories = uiState.categories,
-                    onCategoryClick = onCategoryClick
-                )
-            }
-            // Explore
-            item {
-                SectionTitle("EXPLORE")
-                ExploreRow(
-                    items = uiState.exploreItems,
-                    onItemClick = {}
-                )
-            }
-
-            //
-            item {
-                SectionTitle("TOP RESTAURANTS DELIVERING TO YOU")
-            }
-            items(uiState.restaurants) { restaurant ->
-                RestaurantCard(
-                    restaurant = restaurant,
-                    onClick = { onRestaurantClick(restaurant) }
-                )
-
-            }
-
-            //EXPLORE
-            *//* item {
-                 SectionTitle("EXPLORE")
-                 ExploreRow(items = uiState.exploreItems, onItemClick = {})
-
-             }*//*
-        }
-        CollapsingHeroBanner(listState)
-
-        // 🔝 TOP BAR
-       // HomeTopBar()
-    }*/
-
 
     val collapseFraction = when {
         listState.firstVisibleItemIndex > 0 -> 1f
@@ -253,28 +169,22 @@ fun HomeContent(
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-        // ✅ SCROLL CONTENT
+        // SCROLL CONTENT
         LazyColumn(
             state = listState,
-            contentPadding = PaddingValues(top = 260.dp),
+            contentPadding = PaddingValues(top = MaterialTheme.spacing.heroBannerHeightMax),
             modifier = Modifier.fillMaxSize()
         ) {
 
             item { Spacer(modifier = Modifier.height(MaterialTheme.spacing.small)) }
             item { FlashSaleBanner() }
 
-           /*
-            item { CategoriesSection() }
-
-            items(20) {
-                RestaurantItemDummy()
-            }*/
             //CATEGORIES
             item {
-                SectionTitle("WHAT'S ON YOUR MIND?")
-              /* FoodCategoryRow(
-                uiState.categories,
-                onCategoryClick = onCategoryClick)*/
+                SectionTitle(stringResource(R.string.title_whats_on_your_mind))
+                /* FoodCategoryRow(
+                  uiState.categories,
+                  onCategoryClick = onCategoryClick)*/
                 FoodCategoryGrid(
                     categories = uiState.categories,
                     onCategoryClick = onCategoryClick
@@ -282,7 +192,7 @@ fun HomeContent(
             }
             // Explore
             item {
-                SectionTitle("EXPLORE")
+                SectionTitle(stringResource(R.string.title_explore))
                 ExploreRow(
                     items = uiState.exploreItems,
                     onItemClick = {}
@@ -291,7 +201,7 @@ fun HomeContent(
 
             //
             item {
-                SectionTitle("TOP RESTAURANTS DELIVERING TO YOU")
+                SectionTitle(stringResource(R.string.title_top_restaurants_delvr_to_you))
             }
             items(uiState.restaurants) { restaurant ->
                 RestaurantCard(
@@ -302,22 +212,20 @@ fun HomeContent(
             }
 
             //EXPLORE
-            item {
-            SectionTitle("EXPLORE")
-            ExploreRow(items = uiState.exploreItems, onItemClick = {})
+            /* item {
+             SectionTitle(stringResource(R.string.title_explore))
+             ExploreRow(items = uiState.exploreItems, onItemClick = {})
 
+         }*/
         }
-    }
 
 
-        // 🎯 COLLAPSING BANNER
-        CollapsingBanner(collapseFraction,onProfileMenuAction = onProfileMenuAction)
+        //  COLLAPSING BANNER
+        CollapsingBanner(
+            collapseFraction, onProfileMenuAction = onProfileMenuAction,
+            isVeg, viewModel
+        )
 
-        // 🔍 SEARCH BAR (animated + sticky)
-       // AnimatedSearchBar(collapseFraction)
-
-        // 🔝 TOP BAR
-       // HomeTopBar(collapseFraction)
     }
 }
 
@@ -328,12 +236,12 @@ fun FoodCategoryGrid(
     onCategoryClick: (Category) -> Unit
 ) {
     LazyHorizontalGrid(
-        rows = GridCells.Fixed(2),
+        rows = GridCells.Fixed(AppConstants.COUNT_2),
         modifier = Modifier
             .fillMaxWidth()
             .height(170.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         contentPadding = PaddingValues(horizontal = MaterialTheme.spacing.medium)
     ) {
         items(categories) { category ->
@@ -362,14 +270,14 @@ fun ExploreRow(items: List<ExploreItem>, onItemClick: (ExploreItem) -> Unit = {}
 fun ExploreItemCard(item: ExploreItem, onClick: () -> Unit) {
     Column(
         modifier = Modifier
-            .width(100.dp)
+            .width(MaterialTheme.spacing.spacing100)
             .padding(horizontal = MaterialTheme.spacing.small)
-            .clip(RoundedCornerShape(MaterialTheme.spacing.medium))
+            .clip(MaterialTheme.shapes.medium)
             .background(Color.White)
             .border(
-                width = 1.dp,
+                width = MaterialTheme.spacing.border,
                 color = Color(0xFFE0E0E0),
-                shape = RoundedCornerShape(MaterialTheme.spacing.medium)
+                shape = MaterialTheme.shapes.medium
             )
             .clickable { onClick() }
             .padding(
@@ -387,7 +295,7 @@ fun ExploreItemCard(item: ExploreItem, onClick: () -> Unit) {
         Text(
             text = item.title,
             style = MaterialTheme.typography.labelSmall,
-            maxLines = 1,
+            maxLines = AppConstants.VALUE_ONE,
             textAlign = TextAlign.Center,
             color = Color.Black
         )
@@ -396,21 +304,10 @@ fun ExploreItemCard(item: ExploreItem, onClick: () -> Unit) {
 }
 
 @Composable
-fun FoodCategoryRow(categories: List<Category>, onCategoryClick: (Category) -> Unit = {}) {
-    LazyRow {
-        items(
-            items = categories, key = { it.id }) { category ->
-            FoodCategoryItem(category, onClick = { onCategoryClick(category) })
-        }
-    }
-
-}
-
-@Composable
 fun FoodCategoryItem(category: Category, onClick: () -> Unit) {
     Column(
         modifier = Modifier
-            .width(80.dp)
+            .width(MaterialTheme.spacing.categoryHeight)
             .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -419,15 +316,15 @@ fun FoodCategoryItem(category: Category, onClick: () -> Unit) {
             contentDescription = category.name,
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(60.dp)
+                .size(MaterialTheme.spacing.foodCategoryImageSize)
                 .clip(CircleShape)
                 .background(Color.LightGray)
         )
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
         Text(
             text = category.name,
             style = MaterialTheme.typography.bodySmall,
-            maxLines = 1,
+            maxLines = AppConstants.VALUE_ONE,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
         )
@@ -447,7 +344,7 @@ fun SectionTitle(sectionTitle: String) {
     ) {
         HorizontalDivider(
             modifier = Modifier.weight(1f),
-            thickness = 1.dp,
+            thickness = MaterialTheme.spacing.border,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
         )
         Text(
@@ -458,7 +355,7 @@ fun SectionTitle(sectionTitle: String) {
         )
         HorizontalDivider(
             modifier = Modifier.weight(1f),
-            thickness = 1.dp,
+            thickness = MaterialTheme.spacing.border,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
         )
     }
@@ -469,29 +366,23 @@ fun SectionTitle(sectionTitle: String) {
 fun FlashSaleBanner() {
     Column {
         Text(
-            text = "Offer Expires in 09:30:35",
+            text = stringResource(R.string.offer_expiry_timestamp),
             modifier = Modifier
                 .align(Alignment.End)
-                .padding(5.dp),
+                .padding(MaterialTheme.spacing.xSmall),
         )
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
         Card(
             modifier = Modifier
                 .padding(horizontal = MaterialTheme.spacing.small)
                 .fillMaxWidth()
-                .height(130.dp),
-            shape = RoundedCornerShape(MaterialTheme.spacing.medium)
+                .height(MaterialTheme.spacing.flashBannerHeight),
+            shape = MaterialTheme.shapes.medium
         ) {
-            /**//* Image(
-                 painter = painterResource(R.drawable.ic_launcher_background),
-                 contentDescription = null,
-                 contentScale = ContentScale.Crop,
-                 modifier = Modifier.fillMaxSize()
-             )*/
             val flashSaleUrl = stringResource(id = R.string.flash_sale_image_url)
             AsyncImage(
                 model = flashSaleUrl,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.desc_flash_sale_banner),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
                 placeholder = painterResource(id = R.drawable.ic_launcher_background)
@@ -500,109 +391,6 @@ fun FlashSaleBanner() {
     }
 }
 
-@Composable
-fun HeroBanner() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(250.dp)
-    ) {
-        AsyncImage(
-            model = "https://img.freepik.com/free-vector/food-delivery-service-fast-food-delivery-scooter-delivery-service-illustration_67394-871.jpg?w=2000",
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
-
-        Column(
-            modifier = Modifier
-                .align(Alignment.CenterStart)
-                .padding(MaterialTheme.spacing.medium)
-        ) {
-            Text("Your Cravings,\nDelivered Fresh")
-            Button(onClick = {}) {
-                Text("Order Now")
-            }
-        }
-    }
-    /*Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp),
-        shape = RoundedCornerShape(bottomStart = MaterialTheme.spacing.large, bottomEnd = MaterialTheme.spacing.large)
-    ) {
-        Box(
-            modifier = Modifier.background(
-                color = Color.Yellow, shape = RoundedCornerShape(MaterialTheme.spacing.large)
-            )
-        ) {
-
-            AsyncImage(
-                model = "https://img.freepik.com/free-vector/food-delivery-service-fast-food-delivery-scooter-delivery-service-illustration_67394-871.jpg?w=2000",
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-            Column(modifier = Modifier.align(Alignment.CenterStart)) {
-                Text(
-                    text = "Your Cravings,\\nDelivered Fresh",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
-            Button(
-                onClick = {},
-                colors = ButtonDefaults.buttonColors(Color.Red),
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(10.dp)
-            ) {
-                Text("Order Now")
-            }
-        }
-    }*/
-}
-
-@Composable
-fun HeaderSection(
-    location: String,
-    searchQuery: String,
-    isVegMode: Boolean,
-    onLocationClick: () -> Unit,
-    onSearchChange: (String) -> Unit,
-    onSearchSubmit: () -> Unit,
-    onVegToggle: () -> Unit,
-) {
-
-    Column {
-        LocationHeader(location, onLocationClick)
-        SearchBarRow(
-            query = searchQuery,
-            isVegMode = isVegMode,
-            onQueryChange = onSearchChange,
-            onSearch = onSearchSubmit,
-            onVegToggle = onVegToggle
-        )
-    }
-}
-
-@Composable
-fun SearchBarRow(
-    query: String,
-    isVegMode: Boolean,
-    onQueryChange: (String) -> Unit,
-    onSearch: () -> Unit,
-    onVegToggle: () -> Unit
-) {
-
-}
-
-@Composable
-fun LocationHeader(location: String, onLocationClick: () -> Unit) {
-
-}
 
 @Composable
 fun RestaurantCard(
@@ -616,7 +404,7 @@ fun RestaurantCard(
                 vertical = MaterialTheme.spacing.small
             )
             .fillMaxWidth(),
-        shape = RoundedCornerShape(MaterialTheme.spacing.medium),
+        shape = MaterialTheme.shapes.medium,
         onClick = onClick
     ) {
         Column {
@@ -625,10 +413,10 @@ fun RestaurantCard(
                 contentDescription = restaurant.name,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .height(180.dp)
+                    .height(MaterialTheme.spacing.restaurantCardHeight)
                     .fillMaxWidth(),
 
-            )
+                )
 
             Column(modifier = Modifier.padding(MaterialTheme.spacing.medium)) {
                 Text(
@@ -642,8 +430,8 @@ fun RestaurantCard(
                 )
 
                 Row {
-                   // Text("⭐ ${restaurant.rating}")
-                   // Spacer(modifier = Modifier.width(MaterialTheme.spacing.small))
+                    // Text("⭐ ${restaurant.rating}")
+                    // Spacer(modifier = Modifier.width(MaterialTheme.spacing.small))
                     Text("${restaurant.deliveryTime} mins")
                 }
             }
@@ -652,194 +440,9 @@ fun RestaurantCard(
 }
 
 
-private val previewCategories = listOf(
-    Category(id = 1, name = "Pizza", imageUrl = ""),
-    Category(id = 2, name = "Burger", imageUrl = ""),
-    Category(id = 3, name = "Biryani", imageUrl = ""),
-    Category(id = 4, name = "Desserts", imageUrl = "")
-)
-
-
 private val previewExploreItems = listOf(
     ExploreItem(id = 1, title = "Offers", iconUrl = "", type = ""),
     ExploreItem(id = 2, title = "Top Picks", iconUrl = "", type = ""),
-)
-
-val dummyRestaurants = listOf(
-
-    Restaurant(
-        id = 1,
-        name = "Burger House",
-        url = "https://images.unsplash.com/photo-1550547660-d9450f859349",
-        cuisines = "Burgers, Fast Food",
-        deliveryTime = "25",
-        has_online_delivery = "",
-        is_delivering_now = "",
-        featured_image = "https://images.unsplash.com/photo-1550547660-d9450f8593",
-        location = ""
-    ),
-
-    Restaurant(
-        id = 2,
-        name = "Pizza Palace",
-        url = "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
-        cuisines = "Pizza, Italian",
-        deliveryTime = "30",
-        has_online_delivery = "",
-        is_delivering_now = "",
-        featured_image = "https://images.unsplash.com/photo-1550547660-d9450f8593",
-        location = ""
-    ),
-
-    Restaurant(
-        id = 3,
-        name = "Spice Kitchen",
-        url = "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d",
-        cuisines = "Indian, Biryani",
-        deliveryTime = "35",
-        has_online_delivery = "",
-        is_delivering_now = "",
-        featured_image = "https://images.unsplash.com/photo-1550547660-d9450f8593",
-        location = ""
-    ),
-
-    Restaurant(
-        id = 4,
-        name = "Sushi World",
-        url = "https://images.unsplash.com/photo-1562158070-57b2b2c2b6e3",
-        cuisines = "Sushi, Japanese",
-        deliveryTime = "40",
-        has_online_delivery = "",
-        is_delivering_now = "",
-        featured_image = "https://images.unsplash.com/photo-1550547660-d9450f8593",
-        location = ""
-    ),
-
-    Restaurant(
-        id = 5,
-        name = "Healthy Bites",
-        url = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",
-        cuisines = "Salads, Healthy",
-        deliveryTime = "20",
-        has_online_delivery = "",
-        is_delivering_now = "",
-        featured_image = "https://images.unsplash.com/photo-1550547660-d9450f8593",
-        location = ""
-    ),
-
-    Restaurant(
-        id = 6,
-        name = "Tandoori Treats",
-        url = "https://images.unsplash.com/photo-1601050690597-df0568f70950",
-        cuisines = "North Indian",
-        deliveryTime = "32",
-        has_online_delivery = "",
-        is_delivering_now = "",
-        featured_image = "https://images.unsplash.com/photo-1550547660-d9450f8593",
-        location = ""
-    ),
-
-    Restaurant(
-        id = 7,
-        name = "Cafe Delight",
-        url = "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
-        cuisines = "Cafe, Desserts",
-        deliveryTime = "18",
-        has_online_delivery = "",
-        is_delivering_now = "",
-        featured_image = "https://images.unsplash.com/photo-1550547660-d9450f8593",
-        location = ""
-    ),
-
-    Restaurant(
-        id = 8,
-        name = "Chinese Wok",
-        url = "https://images.unsplash.com/photo-1605478900064-2c1b7f6a0f13",
-        cuisines = "Chinese",
-        deliveryTime = "28",
-        has_online_delivery = "",
-        is_delivering_now = "",
-        featured_image = "https://images.unsplash.com/photo-1550547660-d9450f8593",
-        location = ""
-    ),
-
-    Restaurant(
-        id = 9,
-        name = "BBQ Nation",
-        url = "https://images.unsplash.com/photo-1558030006-450675393462",
-        cuisines = "BBQ, Grill",
-        deliveryTime = "38",
-        has_online_delivery = "",
-        is_delivering_now = "",
-        featured_image = "https://images.unsplash.com/photo-1550547660-d9450f8593",
-        location = ""
-    ),
-
-    Restaurant(
-        id = 10,
-        name = "South Spice",
-        url = "https://images.unsplash.com/photo-1631452180519-c014fe946bc7",
-        cuisines = "South Indian",
-        deliveryTime = "22",
-        has_online_delivery = "",
-        is_delivering_now = "",
-        featured_image = "https://images.unsplash.com/photo-1550547660-d9450f8593",
-        location = ""
-    )
-)
-
-val dummyCategories = listOf(
-    Category(1, "Pizza", "https://img.icons8.com/color/96/pizza.png"),
-    Category(2, "Burger", "https://img.icons8.com/color/96/hamburger.png"),
-    Category(3, "Biryani", "https://img.icons8.com/color/96/rice-bowl.png"),
-    Category(4, "Desserts", "https://img.icons8.com/color/96/cake.png"),
-    Category(5, "Drinks", "https://img.icons8.com/color/96/cocktail.png"),
-    Category(6, "Chinese", "https://img.icons8.com/color/96/noodles.png"),
-    Category(7, "South Indian", "https://img.icons8.com/color/96/dosa.png"),
-    Category(8, "North Indian", "https://img.icons8.com/color/96/curry.png"),
-    Category(9, "Drinks", "https://img.icons8.com/color/96/cocktail.png"),
-    Category(17, "Chinese", "https://img.icons8.com/color/96/noodles.png"),
-    Category(107, "South Indian", "https://img.icons8.com/color/96/dosa.png"),
-    Category(18, "North Indian", "https://img.icons8.com/color/96/curry.png")
-)
-
-val dummyExploreItems = listOf(
-    ExploreItem(
-        1,
-        "Top Rated",
-        "https://img.freepik.com/premium-vector/flash-sale-discount-promotion-banner_603380-265.jpg?w=2000",
-        type = ""
-    ),
-    ExploreItem(
-        2,
-        "Fast Delivery",
-        "https://images.unsplash.com/photo-1526367790999-0150786686a2",
-        type = ""
-    ),
-    ExploreItem(
-        3,
-        "Great Offers",
-        "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
-        type = ""
-    ),
-    ExploreItem(
-        4,
-        "Healthy",
-        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",
-        type = ""
-    ),
-    ExploreItem(
-        5,
-        "Healthy",
-        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",
-        type = ""
-    ),
-    ExploreItem(
-        6,
-        "Healthy",
-        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",
-        type = ""
-    )
 )
 
 
@@ -861,146 +464,26 @@ fun HomeContentPreview() {
     )
 
     MaterialTheme {
-        HomeContent (
-            uiState = previewUiState,
-            onSearchChange = {},
-            onSearchSubmit = {},
-            isVeg = true,
-            onVegToggleChange = {},
-            onCategoryClick = {},
-            onRestaurantClick = {},
-            listState = LazyListState(),
-            onProfileMenuAction = {  }
-        )
+        /* HomeContent (
+             uiState = previewUiState,
+             onSearchChange = {},
+             onSearchSubmit = {},
+             isVeg = true,
+             onVegToggleChange = {},
+             onCategoryClick = {},
+             onRestaurantClick = {},
+             listState = LazyListState(),
+             onProfileMenuAction = {  },
+
+         )*/
     }
-
-
-
 }
 
 @Composable
-fun CollapsingHeroBanner(listState: LazyListState) {
-
-    val maxHeight = 220.dp
-    val minHeight = 80.dp
-
-    val collapseFraction = (listState.firstVisibleItemScrollOffset / 600f)
-        .coerceIn(0f, 1f)
-
-    val height = maxHeight - (maxHeight - minHeight) * collapseFraction
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height)
-            .background(Color.Black)
-    ) {
-
-        // Background image
-        AsyncImage(
-            model = "YOUR_IMAGE_URL",
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.matchParentSize()
-        )
-
-        // Gradient overlay (Zomato feel)
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(Color.Transparent, Color.Black)
-                    )
-                )
-        )
-
-        // Text content
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(16.dp)
-        ) {
-            Text("Your Cravings,", color = Color.White)
-            Text("Delivered Fresh", color = Color.White)
-        }
-    }
-}
-@Composable
-fun SearchBarWithVegToggle(
-    isVeg: Boolean,
-    onVegToggleChange: (Boolean) -> Unit,
-    onSearchClick: () -> Unit = {} // 👈 optional for navigation
+fun CollapsingBanner(
+    collapseFraction: Float, onProfileMenuAction: (ProfileAction) -> Unit,
+    isVeg: Boolean, viewModel: HomeViewModel
 ) {
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        // 🔍 SEARCH BAR
-        Row(
-            modifier = Modifier
-                .weight(1f)
-                .height(52.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(Color(0xFFF5F5F5))
-                .clickable { onSearchClick() } // 👈 clickable
-                .padding(horizontal = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = null,
-                tint = Color.Gray
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Text(
-                text = "Search for dishes, restaurants...",
-                color = Color.Gray
-            )
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        // 🌱 VEG TOGGLE (styled)
-        Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(20.dp))
-                .background(
-                    if (isVeg) Color(0xFFE8F5E9) else Color(0xFFF0F0F0)
-                )
-                .padding(horizontal = 10.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Text(
-                text = "VEG",
-                color = if (isVeg) Color(0xFF2E7D32) else Color.Gray,
-                fontWeight = FontWeight.SemiBold
-            )
-
-            Spacer(modifier = Modifier.width(6.dp))
-
-            Switch(
-                checked = isVeg,
-                onCheckedChange = onVegToggleChange,
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color(0xFF2E7D32),
-                    checkedTrackColor = Color(0xFFA5D6A7)
-                )
-            )
-        }
-    }
-}
-
-@Composable
-fun CollapsingBanner(collapseFraction: Float,onProfileMenuAction: (ProfileAction) -> Unit) {
 
 
     val maxHeight = MaterialTheme.spacing.heroBannerHeightMax
@@ -1010,11 +493,11 @@ fun CollapsingBanner(collapseFraction: Float,onProfileMenuAction: (ProfileAction
 
     val imageOffset = (-40 * collapseFraction).dp
 
-    // 🔥 Address moves UP & disappears
+    //Address moves UP & disappears
     val addressOffsetY = (-60 * collapseFraction).dp
     val addressAlpha = 1f - collapseFraction * 1.2f
 
-    // 🔥 Search becomes sticky
+    //Search becomes sticky
     val searchStartY = 100.dp
     val searchEndY = 10.dp
     val searchOffsetY = searchStartY - (searchStartY - searchEndY) * collapseFraction
@@ -1025,15 +508,15 @@ fun CollapsingBanner(collapseFraction: Float,onProfileMenuAction: (ProfileAction
             .height(height)
     ) {
 
-        // 🌄 Banner Image
+        //Banner Image
         AsyncImage(
             model = "https://img.freepik.com/free-vector/food-delivery-service-fast-food-delivery-scooter-delivery-service-illustration_67394-871.jpg?w=2000",
-            contentDescription = null,
+            contentDescription = stringResource(R.string.desc_hero_banner),
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
 
-        // 🌑 Gradient overlay
+        //Gradient overlay
         Box(
             modifier = Modifier
                 .matchParentSize()
@@ -1054,7 +537,10 @@ fun CollapsingBanner(collapseFraction: Float,onProfileMenuAction: (ProfileAction
                 .statusBarsPadding()
                 .offset(y = addressOffsetY)
                 .alpha(addressAlpha)
-                .padding(horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.small),
+                .padding(
+                    horizontal = MaterialTheme.spacing.medium,
+                    vertical = MaterialTheme.spacing.small
+                ),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
 
@@ -1067,44 +553,13 @@ fun CollapsingBanner(collapseFraction: Float,onProfileMenuAction: (ProfileAction
                 )
             }
 
-          // ProfileSection(onLogoutClick = {})
+            ProfileMenu(
+                menuItems = profileMenuItems,
+                onItemClick = { action -> onProfileMenuAction(action) })
 
-            val profileMenuItems = listOf(
-                ProfileMenuItem(
-                    title = "My Profile",
-                    action = ProfileAction.OpenProfile
-                ),
-                ProfileMenuItem(
-                    title = "Settings",
-                    action = ProfileAction.OpenSettings
-                ),
-                ProfileMenuItem(
-                    title = "Logout",
-                    action = ProfileAction.Logout
-                )
-            )
-
-            ProfileMenu(menuItems = profileMenuItems , onItemClick = {action -> onProfileMenuAction(action)})
-
-
-            /*Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(Color.LightGray)
-                    .clickable {  }
-            ){
-                AsyncImage(
-                    model = R.drawable.ic_launcher_background,
-                    contentDescription = "Profile Icon",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.matchParentSize()
-
-                )
-            }*/
         }
 
-        // 🔍 SEARCH + TOGGLE (becomes top bar)
+        // SEARCH + TOGGLE (top bar)
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1133,11 +588,14 @@ fun CollapsingBanner(collapseFraction: Float,onProfileMenuAction: (ProfileAction
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Text(stringResource(R.string.veg), fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.veg), fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(end = MaterialTheme.spacing.xSmall)
+                )
 
                 Switch(
-                    checked = false,
-                    onCheckedChange = {}
+                    checked = isVeg,
+                    onCheckedChange = { viewModel.onVegToggleChanged(it) },
                 )
             }
         }
@@ -1153,7 +611,7 @@ fun ProfileMenu(
 
     Box {
         AsyncImage(
-            model = "https://api.dicebear.com/7.x/avataaars/png?seed=User",
+            model = "https://api.dicebear.com/7.x/personas/png?seed=fooduser",
             contentDescription = null,
             modifier = Modifier
                 .size(40.dp)

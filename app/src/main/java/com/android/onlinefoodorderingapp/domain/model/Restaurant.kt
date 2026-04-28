@@ -6,8 +6,9 @@ data class Restaurant(
     val url: String,
     val location: String,
     val cuisines: String,
-    val featured_image: String,
-    val has_online_delivery: String,
-    val is_delivering_now: String,
-    val deliveryTime: String
+    val featuredImage: String,
+    val hasOnlineDelivery: String,
+    val isDeliveringNow: String,
+    val deliveryTime: String,
+    val isVeg: Boolean
 )

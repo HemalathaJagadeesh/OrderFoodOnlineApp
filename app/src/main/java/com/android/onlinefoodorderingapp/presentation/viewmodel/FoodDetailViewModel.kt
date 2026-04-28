@@ -3,40 +3,24 @@ package com.android.onlinefoodorderingapp.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 
 import androidx.lifecycle.viewModelScope
+import com.android.onlinefoodorderingapp.data.local.DummyData
 import com.android.onlinefoodorderingapp.domain.model.foodcustomization.Option
 import com.android.onlinefoodorderingapp.domain.model.foodcustomization.OptionGroup
 import com.android.onlinefoodorderingapp.domain.model.restaurantdetails.FoodItem
-import com.android.onlinefoodorderingapp.presentation.screens.foodcustomization.OptionItem
+import com.android.onlinefoodorderingapp.domain.model.CartItem
+import com.android.onlinefoodorderingapp.domain.model.OptionItem
+import com.android.onlinefoodorderingapp.presentation.util.FoodDetailState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// ----------------------------
-// STATE
-// ----------------------------
-
-data class FoodDetailState(
-    val foodItem: FoodItem? = null,
-    val optionGroups: List<OptionGroup> = emptyList(),
-    val selectedOptions: Map<String, OptionItem> = emptyMap(), // groupTitle -> selected option
-    val quantity: Int = 1,
-    val totalPrice: Int = 0,
-    val isLoading: Boolean = false
-)
-
-// ----------------------------
-// VIEWMODEL
-// ----------------------------
 @HiltViewModel
 class FoodDetailViewModel @Inject constructor() : ViewModel() {
 
     private val _state = MutableStateFlow(FoodDetailState())
     val state: StateFlow<FoodDetailState> = _state.asStateFlow()
 
-    // ----------------------------
-    // LOAD DATA
-    // ----------------------------
 
     fun loadFood(foodId: String) {
         viewModelScope.launch {
@@ -59,10 +43,6 @@ class FoodDetailViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    // ----------------------------
-    // OPTION SELECT
-    // ----------------------------
-
     fun onOptionSelected(groupTitle: String, option: OptionItem) {
         _state.update { current ->
             current.copy(
@@ -73,9 +53,6 @@ class FoodDetailViewModel @Inject constructor() : ViewModel() {
         calculateTotal()
     }
 
-    // ----------------------------
-    // QUANTITY
-    // ----------------------------
 
     fun increaseQty() {
         _state.update { it.copy(quantity = it.quantity + 1) }
@@ -90,9 +67,6 @@ class FoodDetailViewModel @Inject constructor() : ViewModel() {
         calculateTotal()
     }
 
-    // ----------------------------
-    // TOTAL PRICE
-    // ----------------------------
 
     private fun calculateTotal() {
         val current = _state.value
@@ -105,10 +79,7 @@ class FoodDetailViewModel @Inject constructor() : ViewModel() {
         _state.update { it.copy(totalPrice = total) }
     }
 
-    // ----------------------------
-    // ADD TO CART
-    // ----------------------------
-
+    //Add to cart
     fun addToCart() {
         val current = _state.value
 
@@ -125,19 +96,19 @@ class FoodDetailViewModel @Inject constructor() : ViewModel() {
         println("Added to cart: $cartItem")
     }
 
-    // ----------------------------
-    // DUMMY DATA
-    // ----------------------------
 
-    private fun getDummyFood(id: String): FoodItem {
-        return FoodItem(
+    private fun getDummyFood(id: String): FoodItem? {
+        return DummyData.foodItem.find { it.id == id }
+        /*return FoodItem(
             id = id,
             name = "Veg Burger",
             price = "80",
             description = "A delicious veg burger made with fresh vegetables and a soft bun. Perfect for a quick meal or snack.",
             image = "https://source.unsplash.com/featured/?burger",
+            isVeg = true
 
-        )
+        )*/
+
     }
     /*rating = 4.2f,
                 ratingCount = 120,
@@ -162,15 +133,5 @@ class FoodDetailViewModel @Inject constructor() : ViewModel() {
             )
         )
     }
+
 }
-
-// ----------------------------
-// CART MODEL
-// ----------------------------
-
-data class CartItem(
-    val foodItem: FoodItem,
-    val quantity: Int,
-    val selectedOptions: List<OptionItem>,
-    val totalPrice: Int
-)

@@ -17,17 +17,21 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.android.onlinefoodorderingapp.R
+import com.android.onlinefoodorderingapp.presentation.theme.spacing
 
 @Composable
 fun RestaurantDetailsTopBar(navController: NavController) {
@@ -36,7 +40,7 @@ fun RestaurantDetailsTopBar(navController: NavController) {
             .fillMaxWidth()
             .background(Color.Red)
             .statusBarsPadding()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.small),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -45,26 +49,26 @@ fun RestaurantDetailsTopBar(navController: NavController) {
         IconButton(onClick = { navController.popBackStack() }) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = stringResource(R.string.desc_back),
                 tint = Color.Black
             )
         }
 
         OutlinedButton(
             onClick = { /* filter */ },
-            shape = RoundedCornerShape(20.dp),
+            shape = MaterialTheme.shapes.large,
             border = BorderStroke(1.dp, Color.LightGray),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp)
+            contentPadding = PaddingValues(horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.small)
         ) {
             Icon(
                 imageVector = Icons.Default.ThumbUp, //it has to be Tune, check it
-                contentDescription = null,
-                modifier = Modifier.size(16.dp)
+                contentDescription = stringResource(R.string.desc_filter),
+                modifier = Modifier.size(MaterialTheme.spacing.medium)
             )
-            Spacer(Modifier.width(6.dp))
+            Spacer(Modifier.width(MaterialTheme.spacing.small))
             Text(
                 text = "FILTER",
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium
             )
         }

@@ -1,4 +1,4 @@
-package com.android.onlinefoodorderingapp.data.di
+package com.android.onlinefoodorderingapp.di
 
 import com.android.onlinefoodorderingapp.data.repository.PagedRestaurantRepositoryImpl
 import com.android.onlinefoodorderingapp.domain.repository.PagedRestaurantRepository

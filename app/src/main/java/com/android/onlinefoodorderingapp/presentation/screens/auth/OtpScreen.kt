@@ -74,7 +74,7 @@ fun OtpScreen(
 
             Spacer(Modifier.height(spacing.medium))
 
-            if (state.timer > 0) {
+            if (state.timer > AppConstants.VALUE_ZERO) {
                 Text(
                     stringResource(R.string.resend_in_seconds,state.timer),
                     color = Color.Gray
@@ -129,22 +129,22 @@ fun OtpInput(
                 value = char,
                 onValueChange = { value ->
 
-                    if (value.length > 1) return@OutlinedTextField
+                    if (value.length > AppConstants.VALUE_ONE) return@OutlinedTextField
 
                     val newOtp = otp.toMutableList()
 
                     if (value.isNotEmpty()) {
                         if (otp.length > index) {
-                            newOtp[index] = value[0]
+                            newOtp[index] = value[AppConstants.VALUE_ZERO]
                         } else {
-                            newOtp.add(value[0])
+                            newOtp.add(value[AppConstants.VALUE_ZERO])
                         }
 
                         onOtpChange(newOtp.joinToString(AppConstants.EMPTY_STRING))
 
                         // 👉 Move to next field
-                        if (index < otpLength - 1) {
-                            focusRequesters[index + 1].requestFocus()
+                        if (index < otpLength - AppConstants.VALUE_ONE) {
+                            focusRequesters[index + AppConstants.VALUE_ONE].requestFocus()
                         } else {
                             focusManager.clearFocus()
                         }
@@ -158,7 +158,7 @@ fun OtpInput(
 
                         // 👉 Move to previous field
                         if (index > 0) {
-                            focusRequesters[index - 1].requestFocus()
+                            focusRequesters[index - AppConstants.VALUE_ONE].requestFocus()
                         }
                     }
                 },
@@ -172,8 +172,8 @@ fun OtpInput(
                             event.key == Key.Backspace &&
                             char.isEmpty()
                         ) {
-                            if (index > 0) {
-                                focusRequesters[index - 1].requestFocus()
+                            if (index > AppConstants.VALUE_ZERO) {
+                                focusRequesters[index - AppConstants.VALUE_ONE].requestFocus()
                             }
                             true
                         } else {

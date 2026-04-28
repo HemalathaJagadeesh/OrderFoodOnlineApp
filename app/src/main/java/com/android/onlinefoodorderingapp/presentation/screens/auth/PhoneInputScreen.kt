@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -20,9 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.android.onlinefoodorderingapp.domain.util.AuthUiState
+import com.android.onlinefoodorderingapp.presentation.theme.spacing
+import com.android.onlinefoodorderingapp.R
+
 
 @Composable
 fun PhoneInputScreen(
@@ -46,20 +48,20 @@ fun PhoneInputScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(MaterialTheme.spacing.large),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.spacing40))
 
             Column {
                 Text(
-                    text = "Login or Signup",
+                    text = stringResource(R.string.login_or_signup),
                     style = MaterialTheme.typography.headlineMedium,
                     color = Color.White
                 )
 
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(MaterialTheme.spacing.small))
 
                 Text(
                     text = "Enter your phone number",
@@ -73,12 +75,12 @@ fun PhoneInputScreen(
                     value = state.phone,
                     onValueChange = onPhoneChange,
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = MaterialTheme.shapes.medium,
                     singleLine = true,
                     leadingIcon = {
                         Text("+91 ", color = Color.Black)
                     },
-                    placeholder = { Text("Phone number") },
+                    placeholder = { Text(stringResource(R.string.phone_number)) },
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.White,
                         unfocusedContainerColor = Color.White,
@@ -88,28 +90,28 @@ fun PhoneInputScreen(
                 )
 
                 state.error?.let {
-                    Spacer(Modifier.height(6.dp))
+                    Spacer(Modifier.height(MaterialTheme.spacing.small))
                     Text(it, color = Color.White)
                 }
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(MaterialTheme.spacing.medium))
                 val isValidPhone = state.phone.length == 10
                 Button(
                     onClick = onContinue,
                     enabled = isValidPhone && !state.isLoading ,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
+                        .height(MaterialTheme.spacing.buttonHeight),
+                    shape = MaterialTheme.shapes.small,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Black
                     )
                 ) {
-                    Text("Send OTP", color = Color.White)
+                    Text(stringResource(R.string.send_otp), color = Color.White)
                 }
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.spacing40))
         }
     }
 }

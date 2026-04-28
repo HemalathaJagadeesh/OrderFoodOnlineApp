@@ -11,22 +11,31 @@ import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.android.onlinefoodorderingapp.R
+import com.android.onlinefoodorderingapp.domain.model.restaurantdetails.FoodItem
+import com.android.onlinefoodorderingapp.presentation.theme.spacing
+import com.android.onlinefoodorderingapp.presentation.util.AppConstants
+import com.android.onlinefoodorderingapp.presentation.viewmodel.FoodDetailViewModel
 
-// ----------------------------
-// SCREEN
-// ----------------------------
 
 @Composable
 fun FoodDetailsScreen1(
+    foodId: String?,
     navController: NavController,
-    foodId: String?
+    viewModel: FoodDetailViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(foodId) {
+        foodId?.let { viewModel.loadFood(it) }
+    }
+    val state by viewModel.state.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -37,7 +46,7 @@ fun FoodDetailsScreen1(
 
             item { HeaderSection(navController) }
 
-            item { FoodInfoSection() }
+            item { FoodInfoSection(state.foodItem) }
 
             item { OptionGroupSection() }
 
@@ -66,14 +75,14 @@ fun HeaderSection(navController: NavController) {
         )
 
         AsyncImage( model = "https://images.unsplash.com/photo-1550547660-d9450f859349",
-            contentDescription = null,
+            contentDescription = stringResource(R.string.desc_profile_image),
             modifier = Modifier.matchParentSize(),
             contentScale = ContentScale.Crop
         )
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(MaterialTheme.spacing.small),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
 
@@ -96,27 +105,35 @@ fun HeaderSection(navController: NavController) {
 // ---------------------- FOOD INFO ----------------------
 
 @Composable
-fun FoodInfoSection() {
+fun FoodInfoSection(foodItem: FoodItem?) {
 
     Column(modifier = Modifier.padding(16.dp)) {
 
-        Text(
-            text = "Spicy Chickpea Crunch Taco",
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp
-        )
+        foodItem?.let {
+            Text(
+                text = foodItem.name,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.xSmall))
 
-        Text(
-            text = "Crispy chickpea tossed in spicy sauce",
-            color = Color.Gray,
-            fontSize = 14.sp
-        )
+        foodItem?.let{
+            Text(
+                text = foodItem.description,
+                color = Color.Gray,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
 
-        Text("₹80", fontWeight = FontWeight.Bold)
+        Text(text =
+            stringResource(
+                R.string.price_rupee,
+                foodItem?.price ?: stringResource(R.string.price_free)
+            ), fontWeight = FontWeight.Bold)
     }
 }
 
@@ -127,11 +144,11 @@ fun OptionGroupSection() {
 
     var selected by remember { mutableStateOf("Soft") }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.padding(MaterialTheme.spacing.medium)) {
 
         Text("Taco shell", fontWeight = FontWeight.Bold)
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
 
         listOf("Crunchy", "Soft").forEach { option ->
 
@@ -139,7 +156,7 @@ fun OptionGroupSection() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { selected = option }
-                    .padding(vertical = 8.dp),
+                    .padding(vertical =MaterialTheme.spacing.small),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
 
@@ -169,24 +186,24 @@ fun AddOnSection() {
         mutableStateMapOf()
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.padding(MaterialTheme.spacing.medium)) {
 
-        Text("Add Ons", fontWeight = FontWeight.Bold)
+        Text(stringResource(id = R.string.add_ons), fontWeight = FontWeight.Bold)
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
 
         items.forEach { (name, price) ->
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .padding(vertical = MaterialTheme.spacing.small),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
 
                 Column {
                     Text(name)
-                    Text("+₹$price", fontSize = 12.sp, color = Color.Gray)
+                    Text(stringResource(R.string.price_add_rupee,price), fontSize = 12.sp, color = Color.Gray)
                 }
 
                 Checkbox(
@@ -198,80 +215,9 @@ fun AddOnSection() {
     }
 }
 
-// ---------------------- BOTTOM BAR ----------------------
-/*
-@Composable
-fun FoodCustomizationBottomBar(
-    modifier: Modifier = Modifier
-) {
-
-    var quantity by remember { mutableIntStateOf(1) }
-    val pricePerItem = 80
-    val totalPrice = quantity * pricePerItem
-
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        tonalElevation = 8.dp,
-        shadowElevation = 8.dp
-    ) {
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            // Quantity Stepper
-            Row(
-                modifier = Modifier
-                    .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
-                    .padding(horizontal = 12.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Text(
-                    "-",
-                    modifier = Modifier.clickable {
-                        if (quantity > 1) quantity--
-                    }
-                )
-
-                Text(
-                    quantity.toString(),
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-
-                Text(
-                    "+",
-                    modifier = Modifier.clickable { quantity++ }
-                )
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            // Add Button
-            Button(
-                onClick = { *//* TODO: Add to cart *//* },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFD32F2F)
-                )
-            ) {
-                Text("Add Item ₹$totalPrice")
-            }
-        }
-    }
-}*/
-data class OptionItem(
-    val id: String,
-    val name: String
-)
 
 @Preview
 @Composable
 fun FoodDetailsScreen1Preview(){
-FoodDetailsScreen1( foodId = null, navController = NavController(LocalContext.current))
+FoodDetailsScreen1(  foodId = AppConstants.EMPTY_STRING, navController = NavController(LocalContext.current))
 }
