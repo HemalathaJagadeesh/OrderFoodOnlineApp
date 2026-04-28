@@ -2,6 +2,7 @@ package com.android.onlinefoodorderingapp.presentation.util
 
 object AppConstants {
 
+    val ALL_TAB: Int = -1
     const val EMPTY_STRING = ""
     const val SOMETHING_WENT_WRONG = "Something went wrong!"
     const val COUNT_2 = 2

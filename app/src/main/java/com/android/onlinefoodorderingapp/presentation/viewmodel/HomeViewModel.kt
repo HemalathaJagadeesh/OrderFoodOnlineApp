@@ -119,39 +119,42 @@ class HomeViewModel @Inject constructor(
 
     //UI STATE (Single source of truth)
     //private val _uiState = MutableStateFlow(HomeUiState())
-    private val _uiState: StateFlow<HomeUiState> = combine(
-        filterFlow, categoriesFlow, featuredFlow
-    ) { filter, categories, featured ->
-        filter?.let {
+    private val _uiState: StateFlow<HomeUiState> =
+        combine(
+            filterFlow,
+            categoriesFlow,
+            featuredFlow
+        ) { filter, categories, featured ->
+
             val filteredRestaurants = dummyRestaurants
-                .filter { restaurant ->
-                    // Veg filter
-                    (!filter.isVegMode || restaurant.isVeg)
+                .filter { !filter.isVegMode || it.isVeg }
+                .filter {
+                    filter.query.isBlank() ||
+                            it.name.contains(filter.query, ignoreCase = true)
                 }
-                .filter { restaurant ->
-                    // Search filter (optional)
-                    restaurant.name.contains(filter.query, ignoreCase = true)
-                }
-            // You can add tab/category filtering here too
 
             HomeUiState.Success(
-                location = it.location,
+                location = filter.location,
                 searchQuery = filter.query,
                 isVegMode = filter.isVegMode,
                 selectedTab = filter.selectedTab,
                 categories = dummyCategories,
                 exploreItems = dummyExploreItems,
                 restaurants = filteredRestaurants
+            ) as HomeUiState
+        }
+            .catch { e ->
+                emit(
+                    HomeUiState.Error(
+                        e.message ?: AppConstants.SOMETHING_WENT_WRONG
+                    )
+                )
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = HomeUiState.Loading
             )
-        } ?: HomeUiState.Loading
-    }
-        .catch { e ->
-            emit(HomeUiState.Error(e.message ?: AppConstants.SOMETHING_WENT_WRONG))
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = HomeUiState.Loading
-        )
 
     val uiState: StateFlow<HomeUiState> = _uiState
 
@@ -213,6 +216,13 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    fun resetHomeState() {
+        searchQuery.value = ""
+        isVegMode.value = false
+        selectedTab.value = AppConstants.ALL_TAB  // or 0 if that’s default
+    }
+
 
 }
 

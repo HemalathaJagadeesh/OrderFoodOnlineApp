@@ -25,8 +25,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
@@ -39,6 +40,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -69,8 +72,10 @@ import com.android.onlinefoodorderingapp.presentation.theme.spacing
 import com.android.onlinefoodorderingapp.presentation.util.HomeUiState
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.android.onlinefoodorderingapp.data.local.DummyData.dummyRestaurants
 import com.android.onlinefoodorderingapp.data.local.DummyData.profileMenuItems
 import com.android.onlinefoodorderingapp.presentation.screens.home.components.ProfileMenuItem
@@ -82,14 +87,14 @@ import com.android.onlinefoodorderingapp.presentation.util.UiEffect
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    navController: NavController,
-    viewModel: HomeViewModel = hiltViewModel()
+    navController: NavController, viewModel: HomeViewModel = hiltViewModel()
 ) {
-
+    val backStackEntry by navController.currentBackStackEntryAsState()
     val uiState by viewModel.uiState.collectAsState()
 
     val isVeg by viewModel.isVegModeState.collectAsState()
-    val listState = rememberLazyListState()
+
+
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
@@ -104,6 +109,12 @@ fun HomeScreen(
                     }
                 }
             }
+        }
+    }
+
+    LaunchedEffect(backStackEntry) {
+        if (backStackEntry?.destination?.route == Routes.HOME) {
+            viewModel.resetHomeState()
         }
     }
 
@@ -129,14 +140,10 @@ fun HomeScreen(
 
             HomeContent(
                 uiState = uiState as HomeUiState.Success,
-                onSearchChange = viewModel::onSearchChange,
-                onSearchSubmit = viewModel::onSearchSubmit,
                 isVeg = isVeg,
-                onVegToggleChange = { viewModel.onVegToggleChanged(it) },
                 onCategoryClick = viewModel::selectTab,
                 onRestaurantClick = { viewModel.onEvent(HomeUiEvent.OnTopRestaurantsClick(it)) },
                 onProfileMenuAction = { viewModel.onEvent(HomeUiEvent.OnProfileMenuClick(it)) },
-                listState = listState,
                 viewModel = viewModel
             )
 
@@ -150,17 +157,17 @@ fun HomeScreen(
 @Composable
 fun HomeContent(
     uiState: HomeUiState.Success,
-    onSearchChange: (String) -> Unit,
-    onSearchSubmit: () -> Unit,
     isVeg: Boolean,
-    onVegToggleChange: (Boolean) -> Unit,
     onCategoryClick: (Category) -> Unit,
     onRestaurantClick: (Restaurant) -> Unit,
     onProfileMenuAction: (ProfileAction) -> Unit,
-    listState: LazyListState,
     viewModel: HomeViewModel
 
 ) {
+
+    val listState = remember(uiState.searchQuery.isBlank()) {
+        LazyListState()
+    }
 
     val collapseFraction = when {
         listState.firstVisibleItemIndex > 0 -> 1f
@@ -176,39 +183,55 @@ fun HomeContent(
             modifier = Modifier.fillMaxSize()
         ) {
 
-            item { Spacer(modifier = Modifier.height(MaterialTheme.spacing.small)) }
-            item { FlashSaleBanner() }
+            if (uiState.searchQuery.isNotBlank()) {
+                // SEARCH MODE
+                if (uiState.restaurants.isEmpty()) {
+                    item {
+                        Text(
+                            stringResource(R.string.no_results_found),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(MaterialTheme.spacing.large),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                } else {
+                    items(uiState.restaurants) { restaurant ->
+                        RestaurantCard(
+                            restaurant = restaurant, onClick = { onRestaurantClick(restaurant) })
+                    }
+                }
 
-            //CATEGORIES
-            item {
-                SectionTitle(stringResource(R.string.title_whats_on_your_mind))
-                /* FoodCategoryRow(
+            } else {
+                //Normal Mode
+                item { Spacer(modifier = Modifier.height(MaterialTheme.spacing.small)) }
+                item { FlashSaleBanner() }
+
+                //CATEGORIES
+                item {
+                    SectionTitle(stringResource(R.string.title_whats_on_your_mind))/* FoodCategoryRow(
                   uiState.categories,
                   onCategoryClick = onCategoryClick)*/
-                FoodCategoryGrid(
-                    categories = uiState.categories,
-                    onCategoryClick = onCategoryClick
-                )
-            }
-            // Explore
-            item {
-                SectionTitle(stringResource(R.string.title_explore))
-                ExploreRow(
-                    items = uiState.exploreItems,
-                    onItemClick = {}
-                )
-            }
+                    FoodCategoryGrid(
+                        categories = uiState.categories, onCategoryClick = onCategoryClick
+                    )
+                }
+                // Explore
+                item {
+                    SectionTitle(stringResource(R.string.title_explore))
+                    ExploreRow(
+                        items = uiState.exploreItems, onItemClick = {})
+                }
 
-            //
-            item {
-                SectionTitle(stringResource(R.string.title_top_restaurants_delvr_to_you))
-            }
-            items(uiState.restaurants) { restaurant ->
-                RestaurantCard(
-                    restaurant = restaurant,
-                    onClick = { onRestaurantClick(restaurant) }
-                )
+                //
+                item {
+                    SectionTitle(stringResource(R.string.title_top_restaurants_delvr_to_you))
+                }
+                items(uiState.restaurants) { restaurant ->
+                    RestaurantCard(
+                        restaurant = restaurant, onClick = { onRestaurantClick(restaurant) })
 
+                }
             }
 
             //EXPLORE
@@ -222,8 +245,7 @@ fun HomeContent(
 
         //  COLLAPSING BANNER
         CollapsingBanner(
-            collapseFraction, onProfileMenuAction = onProfileMenuAction,
-            isVeg, viewModel
+            collapseFraction, onProfileMenuAction = onProfileMenuAction, isVeg, viewModel
         )
 
     }
@@ -232,8 +254,7 @@ fun HomeContent(
 
 @Composable
 fun FoodCategoryGrid(
-    categories: List<Category>,
-    onCategoryClick: (Category) -> Unit
+    categories: List<Category>, onCategoryClick: (Category) -> Unit
 ) {
     LazyHorizontalGrid(
         rows = GridCells.Fixed(AppConstants.COUNT_2),
@@ -246,9 +267,7 @@ fun FoodCategoryGrid(
     ) {
         items(categories) { category ->
             FoodCategoryItem(
-                category = category,
-                onClick = { onCategoryClick(category) }
-            )
+                category = category, onClick = { onCategoryClick(category) })
         }
     }
 }
@@ -338,8 +357,7 @@ fun SectionTitle(sectionTitle: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = MaterialTheme.spacing.small,
-                vertical = MaterialTheme.spacing.xLarge
+                horizontal = MaterialTheme.spacing.small, vertical = MaterialTheme.spacing.xLarge
             ), verticalAlignment = Alignment.CenterVertically
     ) {
         HorizontalDivider(
@@ -394,18 +412,14 @@ fun FlashSaleBanner() {
 
 @Composable
 fun RestaurantCard(
-    restaurant: Restaurant,
-    onClick: () -> Unit
+    restaurant: Restaurant, onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .padding(
-                horizontal = MaterialTheme.spacing.medium,
-                vertical = MaterialTheme.spacing.small
+                horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.small
             )
-            .fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        onClick = onClick
+            .fillMaxWidth(), shape = MaterialTheme.shapes.medium, onClick = onClick
     ) {
         Column {
             AsyncImage(
@@ -420,13 +434,11 @@ fun RestaurantCard(
 
             Column(modifier = Modifier.padding(MaterialTheme.spacing.medium)) {
                 Text(
-                    text = restaurant.name,
-                    style = MaterialTheme.typography.titleMedium
+                    text = restaurant.name, style = MaterialTheme.typography.titleMedium
                 )
 
                 Text(
-                    text = restaurant.cuisines,
-                    style = MaterialTheme.typography.bodySmall
+                    text = restaurant.cuisines, style = MaterialTheme.typography.bodySmall
                 )
 
                 Row {
@@ -451,16 +463,9 @@ private val previewExploreItems = listOf(
 fun HomeContentPreview() {
 
     val previewUiState = HomeUiState.Success(
-        location = "Bangalore",
-        searchQuery = "",
-        isVegMode = false,
-        categories = listOf(
-            Category(1, "Pizza", ""),
-            Category(2, "Burger", ""),
-            Category(3, "Biryani", "")
-        ),
-        exploreItems = previewExploreItems,
-        restaurants = dummyRestaurants
+        location = "Bangalore", searchQuery = "", isVegMode = false, categories = listOf(
+            Category(1, "Pizza", ""), Category(2, "Burger", ""), Category(3, "Biryani", "")
+        ), exploreItems = previewExploreItems, restaurants = dummyRestaurants
     )
 
     MaterialTheme {
@@ -479,10 +484,13 @@ fun HomeContentPreview() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollapsingBanner(
-    collapseFraction: Float, onProfileMenuAction: (ProfileAction) -> Unit,
-    isVeg: Boolean, viewModel: HomeViewModel
+    collapseFraction: Float,
+    onProfileMenuAction: (ProfileAction) -> Unit,
+    isVeg: Boolean,
+    viewModel: HomeViewModel
 ) {
 
 
@@ -523,8 +531,7 @@ fun CollapsingBanner(
                 .background(
                     Brush.verticalGradient(
                         listOf(
-                            Color.Transparent,
-                            Color.Black.copy(alpha = 0.6f)
+                            Color.Transparent, Color.Black.copy(alpha = 0.6f)
                         )
                     )
                 )
@@ -540,8 +547,7 @@ fun CollapsingBanner(
                 .padding(
                     horizontal = MaterialTheme.spacing.medium,
                     vertical = MaterialTheme.spacing.small
-                ),
-            horizontalArrangement = Arrangement.SpaceBetween
+                ), horizontalArrangement = Arrangement.SpaceBetween
         ) {
 
             Column {
@@ -584,12 +590,33 @@ fun CollapsingBanner(
 
                 Spacer(modifier = Modifier.width(MaterialTheme.spacing.small))
 
-                Text(stringResource(R.string.search_for_food), color = Color.Gray)
+                // Text(stringResource(R.string.search_for_food), color = Color.Gray)
+
+                TextField(
+                    value = viewModel.uiState.collectAsState().value.let { state ->
+                        if (state is HomeUiState.Success) state.searchQuery else ""
+                    },
+                    onValueChange = { viewModel.onSearchChange(it) },
+                    placeholder = {
+                        Text(stringResource(R.string.search_for_food))
+                    },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                    colors = TextFieldDefaults.textFieldColors(
+                        containerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(
+                        onSearch = { viewModel.onSearchSubmit() }))
+
 
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    stringResource(R.string.veg), fontWeight = FontWeight.Bold,
+                    stringResource(R.string.veg),
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(end = MaterialTheme.spacing.xSmall)
                 )
 
@@ -604,8 +631,7 @@ fun CollapsingBanner(
 
 @Composable
 fun ProfileMenu(
-    menuItems: List<ProfileMenuItem>,
-    onItemClick: (ProfileAction) -> Unit
+    menuItems: List<ProfileMenuItem>, onItemClick: (ProfileAction) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -616,21 +642,15 @@ fun ProfileMenu(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .clickable { expanded = true }
-        )
+                .clickable { expanded = true })
 
         DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
+            expanded = expanded, onDismissRequest = { expanded = false }) {
             menuItems.forEach { item ->
-                DropdownMenuItem(
-                    text = { Text(item.title) },
-                    onClick = {
-                        expanded = false
-                        onItemClick(item.action)
-                    }
-                )
+                DropdownMenuItem(text = { Text(item.title) }, onClick = {
+                    expanded = false
+                    onItemClick(item.action)
+                })
             }
         }
     }
