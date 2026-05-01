@@ -16,7 +16,6 @@ import com.android.onlinefoodorderingapp.domain.repository.auth.LogoutRepository
 import com.android.onlinefoodorderingapp.domain.repository.auth.SendOtpRepository
 import com.android.onlinefoodorderingapp.domain.repository.auth.VerifyOtpRepository
 import com.android.onlinefoodorderingapp.presentation.util.OtpManager
-import com.android.onlinefoodorderingapp.presentation.util.SessionManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -1,7 +1,7 @@
 package com.android.onlinefoodorderingapp.di
 
 import android.content.Context
-import com.android.onlinefoodorderingapp.presentation.util.SessionManager
+import com.android.onlinefoodorderingapp.data.local.SessionManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

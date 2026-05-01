@@ -85,8 +85,9 @@ fun PhoneInputScreen(
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.White,
                         unfocusedContainerColor = Color.White,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
+                        focusedIndicatorColor = Color.Black,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedTextColor = Color.Black
                     )
                 )
 

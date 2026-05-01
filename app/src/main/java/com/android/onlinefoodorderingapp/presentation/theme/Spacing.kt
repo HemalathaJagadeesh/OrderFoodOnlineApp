@@ -27,6 +27,7 @@ data class Spacing(
     val restaurantCardHeight: Dp = 180.dp,
 
     val offset : Dp = 12.dp,
+    val height170 : Dp = 170.dp,
     val spacing130 : Dp = 130.dp,
     val spacing120 : Dp = 120.dp,
     val minus10 : Dp = (-10).dp,

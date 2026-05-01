@@ -48,7 +48,7 @@ fun OtpScreen(
 ) {
 
     BackHandler {
-        onBack()   // ✅ Explicit back navigation
+        onBack()  // Explicit back navigation
     }
 
     val isOtpValid = state.otp.length == AppConstants.OTP_LENGTH

@@ -107,7 +107,7 @@ fun HeaderSection(navController: NavController) {
 @Composable
 fun FoodInfoSection(foodItem: FoodItem?) {
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.padding(MaterialTheme.spacing.medium)) {
 
         foodItem?.let {
             Text(

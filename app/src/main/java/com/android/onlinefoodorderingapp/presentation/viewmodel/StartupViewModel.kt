@@ -2,7 +2,7 @@ package com.android.onlinefoodorderingapp.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.android.onlinefoodorderingapp.presentation.util.SessionManager
+import com.android.onlinefoodorderingapp.data.local.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn

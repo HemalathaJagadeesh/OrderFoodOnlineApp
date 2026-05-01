@@ -27,7 +27,7 @@ class FoodDetailViewModel @Inject constructor() : ViewModel() {
 
             _state.update { it.copy(isLoading = true) }
 
-            // 🔹 Replace with repo/API later
+            //Replace with repo/API later
             val food = getDummyFood(foodId)
             val groups = getDummyOptions()
 
@@ -75,7 +75,7 @@ class FoodDetailViewModel @Inject constructor() : ViewModel() {
        // val optionsPrice = current.selectedOptions.values.sumOf { it.price }
 
         //val total = (basePrice + optionsPrice) * current.quantity
-        val total = 2222
+        val total = 0
         _state.update { it.copy(totalPrice = total) }
     }
 
@@ -92,7 +92,7 @@ class FoodDetailViewModel @Inject constructor() : ViewModel() {
             totalPrice = current.totalPrice
         )
 
-        // 🔹 Replace with repository later
+
         println("Added to cart: $cartItem")
     }
 

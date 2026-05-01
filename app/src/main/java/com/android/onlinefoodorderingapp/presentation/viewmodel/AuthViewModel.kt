@@ -6,7 +6,7 @@ import com.android.onlinefoodorderingapp.domain.usecase.auth.SendOtpUseCase
 import com.android.onlinefoodorderingapp.domain.usecase.auth.VerifyOtpUsecase
 import com.android.onlinefoodorderingapp.domain.util.AuthUiState
 import com.android.onlinefoodorderingapp.presentation.screens.auth.AuthValidator
-import com.android.onlinefoodorderingapp.presentation.util.SessionManager
+import com.android.onlinefoodorderingapp.data.local.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.android.onlinefoodorderingapp.domain.util.toUserMessage
+import com.android.onlinefoodorderingapp.presentation.util.AppConstants
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
@@ -34,7 +35,7 @@ class AuthViewModel @Inject constructor(
     fun onPhoneChange(phone: String) {
         val current = _state.value as? AuthUiState.EnterPhone ?: return
 
-        val clean = phone.filter { it.isDigit() }.take(10)
+        val clean = phone.filter { it.isDigit() }.take(AppConstants.PHONE_LENGTH)
 
         _state.update {
             current.copy(
@@ -173,7 +174,7 @@ class AuthViewModel @Inject constructor(
                         isLoading = false
                     )
                 },
-                onFailure = {error ->
+                onFailure = { error ->
                     _state.update {
                         current.copy(
                             isLoading = false,
@@ -187,13 +188,11 @@ class AuthViewModel @Inject constructor(
 
     fun onOtpBack() {
         val currentState = _state.value
-            if (currentState is AuthUiState.OtpSent) {
-                _state.value = AuthUiState.EnterPhone(
-                    phone = currentState.phone
-                )
-
-
-    }
+        if (currentState is AuthUiState.OtpSent) {
+            _state.value = AuthUiState.EnterPhone(
+                phone = currentState.phone
+            )
+        }
     }
 
 }

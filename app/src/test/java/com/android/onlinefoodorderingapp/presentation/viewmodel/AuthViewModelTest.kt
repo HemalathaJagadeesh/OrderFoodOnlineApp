@@ -4,7 +4,7 @@ import com.android.onlinefoodorderingapp.domain.model.User
 import com.android.onlinefoodorderingapp.domain.usecase.auth.SendOtpUseCase
 import com.android.onlinefoodorderingapp.domain.usecase.auth.VerifyOtpUsecase
 import com.android.onlinefoodorderingapp.domain.util.AuthUiState
-import com.android.onlinefoodorderingapp.presentation.util.SessionManager
+import com.android.onlinefoodorderingapp.data.local.SessionManager
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe

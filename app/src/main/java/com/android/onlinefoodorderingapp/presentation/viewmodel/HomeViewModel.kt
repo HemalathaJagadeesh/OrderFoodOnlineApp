@@ -198,7 +198,6 @@ class HomeViewModel @Inject constructor(
 
     private fun handleProfileMenuAction(action: ProfileAction) {
 
-
         when (action) {
             ProfileAction.OpenProfile -> {
                 // _effect.tryEmit(UiEffect.NavigateToProfile)
@@ -218,9 +217,9 @@ class HomeViewModel @Inject constructor(
     }
 
     fun resetHomeState() {
-        searchQuery.value = ""
+        searchQuery.value = AppConstants.EMPTY_STRING
         isVegMode.value = false
-        selectedTab.value = AppConstants.ALL_TAB  // or 0 if that’s default
+        selectedTab.value = AppConstants.ALL_TAB
     }
 
 

@@ -260,7 +260,7 @@ fun FoodCategoryGrid(
         rows = GridCells.Fixed(AppConstants.COUNT_2),
         modifier = Modifier
             .fillMaxWidth()
-            .height(170.dp),
+            .height(MaterialTheme.spacing.height170),
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         contentPadding = PaddingValues(horizontal = MaterialTheme.spacing.medium)
@@ -635,14 +635,16 @@ fun ProfileMenu(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Box {
+    Box(){
         AsyncImage(
-            model = "https://api.dicebear.com/7.x/personas/png?seed=fooduser",
-            contentDescription = null,
+            model = R.drawable.avatar,
+            contentDescription = stringResource(R.string.desc_profile_image),
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .clickable { expanded = true })
+                .clickable { expanded = true },
+            placeholder = painterResource(R.drawable.ic_launcher_background),
+            contentScale = ContentScale.Crop)
 
         DropdownMenu(
             expanded = expanded, onDismissRequest = { expanded = false }) {
