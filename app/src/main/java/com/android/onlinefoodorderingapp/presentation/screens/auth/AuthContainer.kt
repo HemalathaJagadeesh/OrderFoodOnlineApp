@@ -1,47 +1,89 @@
 package com.android.onlinefoodorderingapp.presentation.screens.auth
 
+import android.app.Activity
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import com.android.onlinefoodorderingapp.domain.util.AuthUiState
-import com.android.onlinefoodorderingapp.presentation.util.Routes
-import com.android.onlinefoodorderingapp.presentation.viewmodel.AuthViewModel
+import androidx.navigation.NavController
+import com.android.onlinefoodorderingapp.presentation.util.AuthUiState1
+import com.android.onlinefoodorderingapp.presentation.viewmodel.FirebaseAuthViewModel
 
 @Composable
-fun AuthContainer(navController: NavHostController, viewModel: AuthViewModel = hiltViewModel()) {
+fun AuthContainer( navController: NavController,
+                   viewModel: FirebaseAuthViewModel = hiltViewModel()) {
+    val state by viewModel.authState.collectAsState()
+    val error by viewModel.errorMessage.collectAsState()
+    val context = LocalContext.current
 
-    val state by viewModel.state.collectAsState()
+    Box(modifier = Modifier.fillMaxSize()) {
 
-    when (val current = state) {
+        when (state) {
 
-        is AuthUiState.EnterPhone -> {
-            PhoneInputScreen(
-                state = current,
-                onPhoneChange = viewModel::onPhoneChange,
-                onContinue = viewModel::sendOtp
-            )
-        }
-
-        is AuthUiState.OtpSent -> {
-            OtpScreen(
-                state = current,
-                onOtpChange = viewModel::onOtpChange,
-                onVerify = viewModel::verifyOtp,
-                onResend = viewModel::resendOtp,
-                onBack = viewModel::onOtpBack
-            )
-        }
-
-        is AuthUiState.LoggedIn -> {
-            LaunchedEffect(Unit) {
-                navController.navigate(Routes.MAIN_GRAPH) {
-                    popUpTo(Routes.AUTH_GRAPH) { inclusive = true }
-                }
+            is AuthUiState1.Login -> {
+                LoginScreen(
+                    error = error,
+                    onSendOtp = { phone ->
+                        viewModel.sendOtp(context as Activity, phone)
+                    }
+                )
             }
 
+            is AuthUiState1.Otp -> {
+                OtpScreen1(
+                    error = error,
+                    onVerify = { code ->
+                        viewModel.verifyOtp(code)
+                    }
+                )
+            }
+
+            is AuthUiState1.Authenticated -> {
+                LaunchedEffect(Unit) {
+                    navController.navigate("home") {
+                        popUpTo("auth") { inclusive = true }
+                    }
+                }
+            }
+/*
+            is AuthUiState1.Error -> {
+                val message = (state as AuthUiState1.Error).message
+
+                OtpScreen1(
+                    error = message,
+                    onVerify = { code ->
+                        viewModel.verifyOtp(code)
+                    }
+                )
+
+            }*/
+
+            else -> Unit
+        }
+
+        // 🔥 Loader overlay
+        if (state is AuthUiState1.Loading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.25f))
+                    .blur(12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
         }
     }
 }

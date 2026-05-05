@@ -16,6 +16,8 @@ hilt = "2.51"
 room = "2.6.1"
 paging = "3.3.2"
 playServicesMaps = "20.0.0"
+googleServices = "4.4.0"
+firebase-bom = "33.1.0"
 
 
 [libraries]
@@ -49,9 +51,13 @@ androidx-room-paging = { group = "androidx.room", name = "room-paging", version.
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 
 
+firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx" }
+
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
-
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }

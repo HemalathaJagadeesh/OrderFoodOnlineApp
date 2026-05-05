@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "732007724555",
+    "project_id": "onlinefoodorderingapp-199de",
+    "storage_bucket": "onlinefoodorderingapp-199de.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:732007724555:android:d38d7fcf588d852d39f90e",
+        "android_client_info": {
+          "package_name": "com.android.onlinefoodorderingapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbnO0l3xFVq9Zq8OTioGM3NiJCJ4tUodI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

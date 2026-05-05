@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     kotlin("kapt")
     alias(libs.plugins.hilt)
+    alias(libs.plugins.google.services)
 
 }
 
@@ -60,6 +61,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.play.services.maps)
+    implementation(libs.firebase.firestore.ktx)
     testImplementation(libs.junit)
 
     implementation("androidx.compose.ui:ui")
@@ -128,6 +130,12 @@ dependencies {
     tasks.withType<Test> {
         useJUnitPlatform()
     }
+
+    //firebase Authentication
+    implementation("com.google.firebase:firebase-auth:23.0.0")
+    implementation ("com.google.firebase:firebase-firestore-ktx")
+    implementation (platform("com.google.firebase:firebase-bom:33.1.0"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
     // Compose integration
     implementation(libs.hilt.navigation.compose)
