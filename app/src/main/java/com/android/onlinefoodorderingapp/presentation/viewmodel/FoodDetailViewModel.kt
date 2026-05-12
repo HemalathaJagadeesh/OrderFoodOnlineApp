@@ -9,6 +9,7 @@ import com.android.onlinefoodorderingapp.domain.model.foodcustomization.OptionGr
 import com.android.onlinefoodorderingapp.domain.model.restaurantdetails.FoodItem
 import com.android.onlinefoodorderingapp.domain.model.CartItem
 import com.android.onlinefoodorderingapp.domain.model.OptionItem
+import com.android.onlinefoodorderingapp.domain.usecase.cart.GetCartCountUseCase
 import com.android.onlinefoodorderingapp.presentation.util.FoodDetailState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -16,7 +17,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class FoodDetailViewModel @Inject constructor() : ViewModel() {
+class FoodDetailViewModel @Inject constructor(
+    private val cartCountUseCase: GetCartCountUseCase
+) : ViewModel() {
+
+    val cartCount = cartCountUseCase()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
     private val _state = MutableStateFlow(FoodDetailState())
     val state: StateFlow<FoodDetailState> = _state.asStateFlow()
@@ -87,9 +93,9 @@ class FoodDetailViewModel @Inject constructor() : ViewModel() {
 
         val cartItem = CartItem(
             foodItem = item,
-            quantity = current.quantity,
+            quantity = current.quantity/*,
             selectedOptions = current.selectedOptions.values.toList(),
-            totalPrice = current.totalPrice
+            totalPrice = current.totalPrice*/
         )
 
 
@@ -98,7 +104,7 @@ class FoodDetailViewModel @Inject constructor() : ViewModel() {
 
 
     private fun getDummyFood(id: String): FoodItem? {
-        return DummyData.foodItem.find { it.id == id }
+        return DummyData.foodItem.find { it.foodId == id }
         /*return FoodItem(
             id = id,
             name = "Veg Burger",

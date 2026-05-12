@@ -1,11 +1,17 @@
 package com.android.onlinefoodorderingapp.domain.model.restaurantdetails
 
+import android.os.Parcelable
+import androidx.compose.runtime.Immutable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
 data class FoodItem(
+    val foodId: String,
     val name: String,
-    val description: String,
-    val price: String,
+    val price: Double,
     val image: String,
-    val id: String,
+    val description: String,
+    val isSpicy: Boolean,
     val isVeg: Boolean,
-    val isSpicy: Boolean
-)
+    val category: String
+) : Parcelable

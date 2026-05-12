@@ -42,38 +42,43 @@ object DummyData {
         FoodItem(
             name = "Spicy Chicken Crunch",
             description = "Crispy chicken tossed in signature spicy sauce",
-            price = "269",
+            price = 269.0,
             image = "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
-            id = "1",
+            foodId = "1",
             isVeg = false,
-            isSpicy = false
+            isSpicy = false,
+            category = "Pizza"
         ),
         FoodItem(
             name = "Ultimate Cheesy Nachos",
             description = "Loaded nachos with cheese, jalapenos & salsa",
-            price = "229",
+            price =229.0,
             image = "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
-            id = "2",
+            foodId = "2",
             isVeg = true,
-            isSpicy = true
+            isSpicy = true,
+            category = "Salads"
         ),
         FoodItem(
             name = "Spicy Chicken Crunch",
             description = "Crispy chicken tossed in signature spicy sauce",
-            price = "269",
+            price = 267.0,
             image = "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
-            id = "3",
+            foodId = "3",
             isVeg = true,
-            isSpicy = false
+            isSpicy = false,
+            category = "Pizza"
+
         ),
         FoodItem(
             name = "Ultimate Cheesy Nachos",
             description = "Loaded nachos with cheese, jalapenos & salsa",
-            price = "229",
+            price = 229.0,
             image = "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
-            id = "4",
+            foodId = "4",
             isVeg = false,
-            isSpicy = true
+            isSpicy = true,
+            category = "Salads"
         )
     )
 

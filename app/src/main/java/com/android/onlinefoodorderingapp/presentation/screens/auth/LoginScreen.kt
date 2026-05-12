@@ -9,10 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,10 +26,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.android.onlinefoodorderingapp.R
+import com.android.onlinefoodorderingapp.presentation.theme.AppColors
+import com.android.onlinefoodorderingapp.presentation.theme.spacing
+import com.android.onlinefoodorderingapp.presentation.util.AppConstants
 
 @Composable
 fun LoginScreen(
@@ -52,89 +56,89 @@ fun LoginScreen(
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    listOf(Color(0xFFFF7043), Color(0xFFFFA726))
+                    listOf(Color(AppColors.loginOrangeDark.toArgb()), Color(AppColors.loginOrangeLight.toArgb()))
                 )
             )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(MaterialTheme.spacing.large),
             verticalArrangement = Arrangement.Center
         ) {
 
             Text(
                 "Foodie 🍔",
-                fontSize = 32.sp,
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(MaterialTheme.spacing.small))
 
             Text(
                 "Order your favorite meals",
                 color = Color.White.copy(alpha = 0.8f)
             )
 
-            Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(MaterialTheme.spacing.xLarge))
 
             Card(
-                shape = RoundedCornerShape(28.dp),
-                elevation = CardDefaults.cardElevation(10.dp),
+                shape = MaterialTheme.shapes.large,
+                elevation = CardDefaults.cardElevation(MaterialTheme.spacing.small),
                 modifier = Modifier.fillMaxWidth()
             ) {
 
                 Column(
-                    modifier = Modifier.padding(24.dp)
+                    modifier = Modifier.padding(MaterialTheme.spacing.large)
                 ) {
 
                     Text(
-                        "Login",
-                        fontSize = 20.sp,
+                        stringResource(R.string.login),
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold
                     )
 
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(MaterialTheme.spacing.medium))
 
                     OutlinedTextField(
                         value = phone,
                         onValueChange = {
-                            if (it.length <= 10 && it.all(Char::isDigit)) {
+                            if (it.length <= AppConstants.PHONE_LENGTH && it.all(Char::isDigit)) {
                                 phone = it
                                 phoneError = if (
-                                    it.length == 10 &&
+                                    it.length == AppConstants.PHONE_LENGTH &&
                                     it.first() !in listOf('6', '7', '8', '9')
                                 ) {
-                                    "Invalid phone number"
+                                    AppConstants.INVALID_PHONE_NUMBER
                                 } else null
                             }
 
                         },
-                        label = { Text("Phone Number") },
+                        label = { Text(AppConstants.PHONE_NUMBER) },
                         leadingIcon = {
-                            Text("+91")
+                            Text(stringResource(R.string.india_code))
                         },
-                        shape = RoundedCornerShape(12.dp),
+                        shape = MaterialTheme.shapes.small,
                         modifier = Modifier.fillMaxWidth()
                             .focusRequester(phoneFocusRequester)
                     )
 
-                    Spacer(Modifier.height(20.dp))
+                    Spacer(Modifier.height(MaterialTheme.spacing.large))
 
                     Button(
                         onClick = { onSendOtp(phone) },
-                        enabled = phoneError == null && phone.length == 10,
-                        shape = RoundedCornerShape(14.dp),
+                        enabled = phoneError == null && phone.length == AppConstants.PHONE_LENGTH,
+                        shape = MaterialTheme.shapes.medium,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(52.dp)
+                            .height(MaterialTheme.spacing.buttonHeight)
                     ) {
-                        Text("Send OTP")
+                        Text(stringResource(R.string.send_otp))
                     }
 
                     error?.let {
-                        Spacer(Modifier.height(12.dp))
+                        Spacer(Modifier.height(MaterialTheme.spacing.medium))
                         Text(it, color = Color.Red)
                     }
                 }

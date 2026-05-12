@@ -4,6 +4,8 @@ plugins {
     kotlin("kapt")
     alias(libs.plugins.hilt)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.kotlin.parcelize)
+
 
 }
 
@@ -104,6 +106,8 @@ dependencies {
 
     //datastore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
 
     //unit testing
     testImplementation("io.kotest:kotest-runner-junit5:5.8.0")

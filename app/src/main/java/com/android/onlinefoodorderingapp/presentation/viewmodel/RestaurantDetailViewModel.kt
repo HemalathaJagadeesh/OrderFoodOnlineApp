@@ -3,22 +3,35 @@ package com.android.onlinefoodorderingapp.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.onlinefoodorderingapp.data.local.DummyData
+import com.android.onlinefoodorderingapp.domain.model.CartItem
 import com.android.onlinefoodorderingapp.domain.model.restaurantdetails.FoodItem
+import com.android.onlinefoodorderingapp.domain.usecase.cart.GetCartCountUseCase
 import com.android.onlinefoodorderingapp.presentation.util.FoodFilter
 import com.android.onlinefoodorderingapp.presentation.util.RestaurantDetailUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RestaurantDetailViewModel @Inject constructor() : ViewModel() {
+class RestaurantDetailViewModel @Inject constructor(
+    private val getCartCountUseCase: GetCartCountUseCase
+) : ViewModel() {
 
+    val cartCount = getCartCountUseCase()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
     private val _state = MutableStateFlow(
         RestaurantDetailUiState(
             categories = listOf(
+                "All",
                 "Pizza",
                 "Burger",
                 "Pasta",
@@ -29,12 +42,82 @@ class RestaurantDetailViewModel @Inject constructor() : ViewModel() {
     )
     val state = _state.asStateFlow()
 
+
+    private val searchTextFlow = state
+        .map { it.menuSearchState.searchText }
+        .debounce(300) // ✅ debounce delay
+        .distinctUntilChanged()
+
+    /**
+     * DERIVED FILTERED LIST
+     * UI MUST consume this
+     */
+    val filteredFoodItems = combine(
+        state,           // for filters + category + data
+        searchTextFlow   // debounced search text
+    ) { current, debouncedSearch ->
+
+        val selectedCategory = current.menuSearchState.selectedCategory
+
+        current.allFoodItems
+            .filter {
+                debouncedSearch.isBlank() ||
+                        it.name.contains(debouncedSearch, ignoreCase = true)
+            }
+            .filter {
+                selectedCategory == null ||
+                        it.category.equals(selectedCategory, ignoreCase = true)
+            }
+            .filter {
+                when (current.selectedFilter) {
+                    FoodFilter.ALL -> true
+                    FoodFilter.VEG -> it.isVeg
+                    FoodFilter.NON_VEG -> !it.isVeg
+                    FoodFilter.SPICY -> it.isSpicy
+                }
+            }
+
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5_000),
+        emptyList()
+    )
+
+
+
     init {
-        dummyFoodList()
+        loadInitialData()
     }
 
     fun onSearchChange(searchText: String) {
-        _state.update { it.copy(searchText = searchText) }
+
+        _state.update {
+            it.copy(
+                menuSearchState = it.menuSearchState.copy(
+                    searchText = searchText
+                )
+            )
+        }
+
+    }
+    fun onCategorySelected(category: String) {
+        _state.update { current ->
+
+            val newCategory =
+                if (category.equals("All", ignoreCase = true)) {
+                    null            // CLEAR MENU CATEGORY
+                } else if (current.menuSearchState.selectedCategory == category) {
+                    null            // ✅ toggle off same category
+                } else {
+                    category        // ✅ select category
+                }
+
+            current.copy(
+                menuSearchState = current.menuSearchState.copy(
+                    selectedCategory = newCategory
+                )
+            )
+        }
     }
 
     fun openMenuSheet() {
@@ -61,38 +144,66 @@ class RestaurantDetailViewModel @Inject constructor() : ViewModel() {
 
     }
 
-    fun onAddItemClick() {
-        println("Add Item Clicked")
-    }
+   /* fun onAddItemClick
+                (item: FoodItem) {
+        _state.update { current ->
 
-    private fun dummyFoodList() {
+            val currentCart = current.cartItems
+            val existingCartItem = currentCart[item.foodId]
+
+            val updatedCart = if (existingCartItem == null) {
+                // ✅ First time add
+                currentCart + (
+                        item.foodId to CartItem(
+                            foodItem = item,
+                            quantity = 1
+                        )
+                        )
+            } else {
+                // ✅ Increase quantity
+                currentCart + (
+                        item.foodId to existingCartItem.copy(
+                            quantity = existingCartItem.quantity + 1
+                        )
+                        )
+            }
+
+            current.copy(
+                cartItems = updatedCart
+            )
+        }
+
+    }*/
+
+    /*private fun dummyFoodList() {
         _state.value = state.value.copy(
             allFoodItems = DummyData.foodItem,
             foodItem = DummyData.foodItem
         )
+    }*/
+
+    private fun loadInitialData() {
+        _state.update {
+            it.copy(allFoodItems = DummyData.foodItem)
+        }
     }
 
-    fun loadData(restaurantId: String) {
-        viewModelScope.launch {
 
+    fun loadData(restaurantId: String) {
+
+        viewModelScope.launch {
+            val items = DummyData.foodItem
+            _state.update {
+                it.copy(allFoodItems = items)
+            }
         }
+
 
     }
 
     fun onFilterSelected(filter: FoodFilter) {
-        _state.update { current ->
-            val filteredItems = when (filter) {
-                FoodFilter.ALL -> current.allFoodItems
-                FoodFilter.VEG -> current.allFoodItems.filter { it.isVeg }
-                FoodFilter.NON_VEG -> current.allFoodItems.filter { !it.isVeg }
-                FoodFilter.SPICY -> current.allFoodItems.filter { it.isSpicy }
-            }
 
-            current.copy(
-                selectedFilter = filter,
-                foodItem = filteredItems
-            )
-        }
+        _state.update { it.copy(selectedFilter = filter) }
     }
 
 }

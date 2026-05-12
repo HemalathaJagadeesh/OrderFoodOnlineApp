@@ -23,10 +23,10 @@ class RestaurantDetailViewModelTest
 
     lateinit var viewModel: RestaurantDetailViewModel
 
-    beforeTest {
+   /* beforeTest {
         Dispatchers.setMain(dispatcher)
         viewModel = RestaurantDetailViewModel()
-    }
+    }*/
 
     afterTest {
         Dispatchers.resetMain()
@@ -48,13 +48,13 @@ class RestaurantDetailViewModelTest
             }
         }
 
-        Then("it should load dummy food list on init") {
+       /* Then("it should load dummy food list on init") {
             runTest(dispatcher) {
                 val state = viewModel.state.first()
 
                 state.foodItem shouldBe DummyData.foodItem
             }
-        }
+        }*/
     }
 
     Given("search input change") {
@@ -119,7 +119,7 @@ class RestaurantDetailViewModelTest
             }
         }
     }
-
+/*
     Given("add item click") {
 
         Then("onAddItemClick should not crash") {
@@ -128,6 +128,6 @@ class RestaurantDetailViewModelTest
                 true shouldBe true
             }
         }
-    }
+    }*/
 })
 

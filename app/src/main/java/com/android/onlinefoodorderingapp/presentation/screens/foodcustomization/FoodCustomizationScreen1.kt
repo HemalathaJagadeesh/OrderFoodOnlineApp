@@ -1,9 +1,14 @@
 package com.android.onlinefoodorderingapp.presentation.screens.foodcustomization
 
+import android.content.Context
+import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateMap
@@ -18,11 +23,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.ImageLoader
 import coil.compose.AsyncImage
 import com.android.onlinefoodorderingapp.R
 import com.android.onlinefoodorderingapp.domain.model.restaurantdetails.FoodItem
 import com.android.onlinefoodorderingapp.presentation.theme.spacing
 import com.android.onlinefoodorderingapp.presentation.util.AppConstants
+import com.android.onlinefoodorderingapp.presentation.util.shareFoodWithImage
+import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel2
 import com.android.onlinefoodorderingapp.presentation.viewmodel.FoodDetailViewModel
 
 
@@ -30,12 +38,31 @@ import com.android.onlinefoodorderingapp.presentation.viewmodel.FoodDetailViewMo
 fun FoodDetailsScreen1(
     foodId: String?,
     navController: NavController,
+    cartViewModel: CartViewModel2,
+    onFoodLoaded: (FoodItem) -> Unit,
     viewModel: FoodDetailViewModel = hiltViewModel()
 ) {
+
+
+    /*val foodItem = state.allFoodItems.find { it.id == foodId }
+        ?: return*/
+
+
+    val state by viewModel.state.collectAsState()
+    val foodItem = state.foodItem
+
+    Log.i("TAG", "FoodDetailsScreen1: ${foodItem?.name}")
+
+
     LaunchedEffect(foodId) {
         foodId?.let { viewModel.loadFood(it) }
+
     }
-    val state by viewModel.state.collectAsState()
+    // ✅ Send data back to NavigationHost
+    LaunchedEffect(foodItem) {
+        foodItem?.let { onFoodLoaded(it) }
+    }
+
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -74,7 +101,8 @@ fun HeaderSection(navController: NavController) {
                 .background(Color.LightGray)
         )
 
-        AsyncImage( model = "https://images.unsplash.com/photo-1550547660-d9450f859349",
+        AsyncImage(
+            model = "https://images.unsplash.com/photo-1550547660-d9450f859349",
             contentDescription = stringResource(R.string.desc_profile_image),
             modifier = Modifier.matchParentSize(),
             contentScale = ContentScale.Crop
@@ -86,18 +114,6 @@ fun HeaderSection(navController: NavController) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
 
-           /* IconButton(onClick = { navController.popBackStack() }) {
-                Text("<")
-            }*/
-
-           /* Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(Color.White)
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
-            ) {
-                Text("CUSTOMIZE", fontSize = 12.sp)
-            }*/
         }
     }
 }
@@ -106,20 +122,37 @@ fun HeaderSection(navController: NavController) {
 
 @Composable
 fun FoodInfoSection(foodItem: FoodItem?) {
-
+    val context = LocalContext.current
     Column(modifier = Modifier.padding(MaterialTheme.spacing.medium)) {
 
         foodItem?.let {
-            Text(
-                text = foodItem.name,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Text(
+                    text = it.name,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                IconButton(
+                    onClick = {
+                        //shareFoodItem(context, it)
+
+                        shareFoodWithImage(context, foodItem)
+                    }) {
+                    Icon(Icons.Default.Share, contentDescription = "Share")
+
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.xSmall))
 
-        foodItem?.let{
+        foodItem?.let {
             Text(
                 text = foodItem.description,
                 color = Color.Gray,
@@ -129,11 +162,13 @@ fun FoodInfoSection(foodItem: FoodItem?) {
 
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
 
-        Text(text =
-            stringResource(
-                R.string.price_rupee,
-                foodItem?.price ?: stringResource(R.string.price_free)
-            ), fontWeight = FontWeight.Bold)
+        Text(
+            text =
+                stringResource(
+                    R.string.price_rupee,
+                    foodItem?.price ?: stringResource(R.string.price_free)
+                ), fontWeight = FontWeight.Bold
+        )
     }
 }
 
@@ -156,7 +191,7 @@ fun OptionGroupSection() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { selected = option }
-                    .padding(vertical =MaterialTheme.spacing.small),
+                    .padding(vertical = MaterialTheme.spacing.small),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
 
@@ -203,7 +238,11 @@ fun AddOnSection() {
 
                 Column {
                     Text(name)
-                    Text(stringResource(R.string.price_add_rupee,price), fontSize = 12.sp, color = Color.Gray)
+                    Text(
+                        stringResource(R.string.price_add_rupee, price),
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
                 }
 
                 Checkbox(
@@ -216,8 +255,28 @@ fun AddOnSection() {
 }
 
 
+fun shareFoodItem(context: Context, item: FoodItem) {
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(
+            Intent.EXTRA_TEXT,
+            "Check out this item 🍔\n\n${item.name}\n₹${item.price}\n\n${item.description}"
+        )
+    }
+
+    context.startActivity(
+        Intent.createChooser(intent, "Share via")
+    )
+}
+
+
 @Preview
 @Composable
-fun FoodDetailsScreen1Preview(){
-FoodDetailsScreen1(  foodId = AppConstants.EMPTY_STRING, navController = NavController(LocalContext.current))
+fun FoodDetailsScreen1Preview() {
+    FoodDetailsScreen1(
+        foodId = AppConstants.EMPTY_STRING,
+        navController = NavController(LocalContext.current),
+        cartViewModel = CartViewModel2(),
+        onFoodLoaded = {}
+    )
 }

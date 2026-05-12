@@ -1,18 +1,18 @@
 package com.android.onlinefoodorderingapp.domain.repository.auth
 
 import android.app.Activity
+import com.android.onlinefoodorderingapp.domain.model.auth.AuthResult
+import com.android.onlinefoodorderingapp.domain.model.auth.SendOtpResult
 
 interface AuthRepository {
-    fun sendOtp(
+    suspend fun sendOtp(
         phone: String,
         countryCode: String,
-        activity: Activity,
-        onCodeSent: (verificationId: String) -> Unit,
-        onError: (message: String) -> Unit
-    )
+        activityProvider: () -> Activity
+    ): SendOtpResult
 
     suspend fun verifyOtp(
         verificationId: String,
         code: String
-    ): Result<String> // returns userId
+    ): AuthResult // returns userId
 }

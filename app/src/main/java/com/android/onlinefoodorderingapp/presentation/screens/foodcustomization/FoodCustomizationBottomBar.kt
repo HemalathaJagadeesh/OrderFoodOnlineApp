@@ -33,10 +33,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.android.onlinefoodorderingapp.presentation.theme.spacing
 import com.android.onlinefoodorderingapp.R
-
+import com.android.onlinefoodorderingapp.data.local.DummyData
+import com.android.onlinefoodorderingapp.domain.model.restaurantdetails.FoodItem
 
 @Composable
-    fun FoodCustomizationBottomBar() {
+    fun FoodCustomizationBottomBar(
+    onAddToCart: (quantity: Int) -> Unit
+) {
 
         var quantity by remember { mutableIntStateOf(1) }
         val pricePerItem = 80
@@ -67,7 +70,7 @@ import com.android.onlinefoodorderingapp.R
 
             //Add Item Button
             Button(
-                onClick = { /* Add to cart */ },
+                onClick = { onAddToCart(quantity) },
                 modifier = Modifier
                     .weight(1f)
                     .height(MaterialTheme.spacing.xxLarge),
@@ -119,6 +122,6 @@ fun QuantityStepper(
 @Preview
 @Composable
 fun FoodCustomizationBottomBarPreview() {
-    FoodCustomizationBottomBar()
+    FoodCustomizationBottomBar( onAddToCart = {})
 }
 

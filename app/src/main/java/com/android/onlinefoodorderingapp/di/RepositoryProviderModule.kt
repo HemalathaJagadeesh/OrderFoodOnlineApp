@@ -1,5 +1,7 @@
 package com.android.onlinefoodorderingapp.di
 
+import com.android.onlinefoodorderingapp.data.local.SessionManager
+import com.android.onlinefoodorderingapp.data.local.dao.CartDao
 import com.android.onlinefoodorderingapp.data.local.dao.UserDao
 import com.android.onlinefoodorderingapp.data.local.db.AppDatabase
 import com.android.onlinefoodorderingapp.data.remote.api.ZomatoApiService
@@ -9,6 +11,7 @@ import com.android.onlinefoodorderingapp.data.repository.auth.GetLoggedInUserRep
 import com.android.onlinefoodorderingapp.data.repository.auth.LogoutRepositoyImpl
 import com.android.onlinefoodorderingapp.data.repository.auth.SendOtpRepositoryImpl
 import com.android.onlinefoodorderingapp.data.repository.auth.VerifyOtpRepositoryImpl
+import com.android.onlinefoodorderingapp.data.repository.cart.CartRepositoryImpl
 import com.android.onlinefoodorderingapp.domain.repository.CategoryRepository
 import com.android.onlinefoodorderingapp.domain.repository.FeaturedRestaurantRepository
 import com.android.onlinefoodorderingapp.domain.repository.auth.LoggedInUserRepository
@@ -54,7 +57,7 @@ object RepositoryProviderModule {
 
     @Provides
     @Singleton
-    fun provideLogoutRepository(dao: UserDao): LogoutRepository =
-        LogoutRepositoyImpl(dao)
+    fun provideLogoutRepository(sessionManager: SessionManager, dao: UserDao): LogoutRepository =
+        LogoutRepositoyImpl(sessionManager,dao)
 
 }

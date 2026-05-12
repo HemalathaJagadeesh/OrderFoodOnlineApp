@@ -54,6 +54,10 @@
     <string name="no_results_found">No results found</string>
     <string name="enter_your_phone_number">Enter your phone number</string>
     <string name="country_code">"+91 "</string>
+    <string name="checkout">Checkout</string>
+    <string name="car_is_empty">Cart is empty</string>
+    <string name="login">Login</string>
+    <string name="india_code">+91</string>
 
 
 </resources>

@@ -12,6 +12,8 @@ object Routes {
     const val AUTHENTICATION_SCREEN = "authentication"
     const val FOOD_DETAILS_SCREEN  = "food_details/{foodId}" // correct it
     const val LOGIN_SCREEN= "login"
+    const val CART_SCREEN= "cart_screen"
+
 
 
 }

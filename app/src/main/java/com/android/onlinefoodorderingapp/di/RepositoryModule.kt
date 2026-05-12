@@ -1,7 +1,9 @@
 package com.android.onlinefoodorderingapp.di
 
 import com.android.onlinefoodorderingapp.data.repository.PagedRestaurantRepositoryImpl
+import com.android.onlinefoodorderingapp.data.repository.cart.CartRepositoryImpl
 import com.android.onlinefoodorderingapp.domain.repository.PagedRestaurantRepository
+import com.android.onlinefoodorderingapp.domain.repository.cart.CartRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -22,6 +24,11 @@ abstract class RepositoryModule {
     abstract fun bindPagedRestaurantRepository(pagedRestaurantRepository: PagedRestaurantRepositoryImpl):
             PagedRestaurantRepository
 
+
+    @Binds
+    abstract fun bindCartRepository(
+        impl: CartRepositoryImpl
+    ): CartRepository
 
 
 }

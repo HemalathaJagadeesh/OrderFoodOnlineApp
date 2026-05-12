@@ -11,8 +11,8 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)*/
 
-val loginPinkPrimary = Color(0xFFE91E63)
-val loginPinkSecondary = Color(0xFFD81B60)
+val loginOrangePrimary = Color(0xFFFF7043)
+val loginOrangeOnPrimaryLight = Color(0xFFFFA726)
 
 
 val primaryLight = Color(0xFF8E4956)

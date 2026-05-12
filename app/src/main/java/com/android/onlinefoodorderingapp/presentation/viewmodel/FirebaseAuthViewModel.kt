@@ -3,9 +3,14 @@ package com.android.onlinefoodorderingapp.presentation.viewmodel
 import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.android.onlinefoodorderingapp.data.local.SessionManager
+import com.android.onlinefoodorderingapp.domain.model.auth.AuthResult
+import com.android.onlinefoodorderingapp.domain.model.auth.SendOtpResult
 import com.android.onlinefoodorderingapp.domain.usecase.auth.SendFirebaseOtpUsecase
 import com.android.onlinefoodorderingapp.domain.usecase.auth.VerifyFirebaseOtpUsecase
+import com.android.onlinefoodorderingapp.presentation.util.AppConstants
 import com.android.onlinefoodorderingapp.presentation.util.AuthUiState1
+import com.android.onlinefoodorderingapp.presentation.util.toUiMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class FirebaseAuthViewModel  @Inject constructor(
     private val sendOtpUseCase: SendFirebaseOtpUsecase,
-    private val verifyOtpUseCase: VerifyFirebaseOtpUsecase
+    private val verifyOtpUseCase: VerifyFirebaseOtpUsecase,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow<AuthUiState1>(AuthUiState1.Login)
@@ -26,55 +32,57 @@ class FirebaseAuthViewModel  @Inject constructor(
     val errorMessage = _errorMessage.asStateFlow()
 
 
-    var verificationId = ""
-    var phoneNumber = ""
+    var verificationId = AppConstants.EMPTY_STRING
+    private var phoneNumber = AppConstants.EMPTY_STRING
 
-    fun sendOtp(activity: Activity, phone: String) {
+    fun sendOtp(activityProvider: () -> Activity, phone: String) {
+
 
         phoneNumber = phone
-        _errorMessage.value = null
         _authState.value = AuthUiState1.Loading
+
         viewModelScope.launch {
-            sendOtpUseCase(
-                phone = phone,
-                countryCode = "+91",
-                activity = activity,
 
-                onCodeSent = { verification ->
-                    verificationId = verification
+            when (val result = sendOtpUseCase(phone, AppConstants.COUNTRY_CODE, activityProvider)) {
+
+                is SendOtpResult.Success -> {
                     _errorMessage.value = null
+                    verificationId = result.verificationId
                     _authState.value = AuthUiState1.Otp
-                },
 
-                onError = { error ->
-                    _errorMessage.value = error
-                    _authState.value = AuthUiState1.Login
                 }
-            )
+
+                is SendOtpResult.Failure -> {
+                    _authState.value = AuthUiState1.Login
+                    _errorMessage.value = result.error.toUiMessage()
+                }
+            }
         }
+
     }
     fun verifyOtp(code: String) {
         viewModelScope.launch {
             _authState.value = AuthUiState1.Loading
 
-            val result = verifyOtpUseCase(
-                verificationId,
-                code
-            )
+            when (val result = verifyOtpUseCase(verificationId, code)) {
 
-
-            result.fold(
-                onSuccess = {
+                is AuthResult.Success -> {
                     _errorMessage.value = null
                     _authState.value = AuthUiState1.Authenticated
-                },
-                onFailure = { error ->
-                    _errorMessage.value = error.message ?: "Invalid OTP"
-                    _authState.value = AuthUiState1.Otp // ✅ stay on OTP screen
+                    sessionManager.saveSession(
+                        isLoggedIn = true,
+                        phone = phoneNumber
+                    )
                 }
-            )
 
+                is AuthResult.Failure -> {
 
+                    _authState.value = AuthUiState1.Otp
+                    _errorMessage.value = result.error.toUiMessage()
+
+                }
+
+            }
         }
     }
 }

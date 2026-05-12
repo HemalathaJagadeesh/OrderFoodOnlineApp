@@ -1,11 +1,13 @@
 package com.android.onlinefoodorderingapp.presentation.screens.auth
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -18,6 +20,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.android.onlinefoodorderingapp.presentation.theme.spacing
+import com.android.onlinefoodorderingapp.presentation.util.AppConstants
 import com.android.onlinefoodorderingapp.presentation.util.AuthUiState1
 import com.android.onlinefoodorderingapp.presentation.viewmodel.FirebaseAuthViewModel
 
@@ -36,7 +40,14 @@ fun AuthContainer( navController: NavController,
                 LoginScreen(
                     error = error,
                     onSendOtp = { phone ->
-                        viewModel.sendOtp(context as Activity, phone)
+
+                        viewModel.sendOtp(
+                            activityProvider = {
+                                context.findActivity()
+                            },
+                            phone = phone
+                        )
+
                     }
                 )
             }
@@ -79,11 +90,19 @@ fun AuthContainer( navController: NavController,
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.25f))
-                    .blur(12.dp),
+                    .blur(MaterialTheme.spacing.medium),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
             }
         }
+    }
+}
+
+fun Context.findActivity(): Activity {
+    return when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.findActivity()
+        else -> throw IllegalStateException(AppConstants.NO_ACTIVITY_FOUND)
     }
 }

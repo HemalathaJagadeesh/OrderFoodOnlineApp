@@ -1,6 +1,8 @@
 package com.android.onlinefoodorderingapp.domain.usecase.auth
 
 import android.app.Activity
+import com.android.onlinefoodorderingapp.domain.model.auth.AuthError
+import com.android.onlinefoodorderingapp.domain.model.auth.SendOtpResult
 import com.android.onlinefoodorderingapp.domain.repository.auth.AuthRepository
 import javax.inject.Inject
 
@@ -8,20 +10,22 @@ class SendFirebaseOtpUsecase @Inject constructor(
     private val repo: AuthRepository
 ) {
 
-    operator fun invoke(
+    suspend operator fun invoke(
         phone: String,
-        countryCode:String,
-        activity: Activity,
-        onCodeSent: (String) -> Unit,
-        onError: (String) -> Unit
-    ) {
+        countryCode: String,
+        activityProvider: () -> Activity
+    ): SendOtpResult {
 
+        // ✅ Validation
         if (phone.length != 10) {
-            onError("Invalid phone number")
-            return
+            return SendOtpResult.Failure(AuthError.InvalidPhone)
         }
 
-        repo.sendOtp(phone, countryCode,activity, onCodeSent, onError)
+        // ✅ Call repository
+        return repo.sendOtp(
+            phone = phone,
+            countryCode = countryCode,
+            activityProvider  = activityProvider
+        )
     }
-
 }

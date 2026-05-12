@@ -45,30 +45,54 @@ import com.android.onlinefoodorderingapp.presentation.viewmodel.RestaurantDetail
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.android.onlinefoodorderingapp.R
 import com.android.onlinefoodorderingapp.domain.model.restaurantdetails.FoodItem
 import com.android.onlinefoodorderingapp.presentation.theme.spacing
 import com.android.onlinefoodorderingapp.presentation.util.AppConstants
 import com.android.onlinefoodorderingapp.presentation.util.FoodFilter
 import com.android.onlinefoodorderingapp.presentation.util.RestaurantDetailUiState
+import com.android.onlinefoodorderingapp.presentation.util.Routes
+import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel
+import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel2
 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun RestaurantDetailsScreen(
     restaurantId: String?,
-    navController: NavController,
+    navController: NavController,cartViewModel: CartViewModel2,
     viewModel: RestaurantDetailViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(Unit) {
+
+    //val cartCount by viewModel.cartCount.collectAsState()
+
+   /* RestaurantDetailsTopBar(
+        navController = navController,
+        cartCount = cartCount
+    )*/
+
+    LaunchedEffect(restaurantId) {
         viewModel.loadData(restaurantId ?: AppConstants.EMPTY_STRING)
     }
     val state by viewModel.state.collectAsState()
     val scrollState = rememberLazyListState()
+    val foodItems by viewModel.filteredFoodItems.collectAsState()
+
+
+// ✅ Get cart data from CartViewModel
+    //val cartViewModel: CartViewModel2 = hiltViewModel()
+    val cartItems by cartViewModel.cartItems.collectAsState()
+// ✅ Create map for fast lookup
+    val cartMap = remember(cartItems) {
+        cartItems.associateBy { it.foodItem.foodId }
+    }
+
 
     val isCollapsed by remember {
         derivedStateOf { scrollState.firstVisibleItemScrollOffset > 200 }
     }
+
 
 
     Box {
@@ -90,18 +114,33 @@ fun RestaurantDetailsScreen(
             }
 
             items(
-                items = state.foodItem,
-                key = { it.id }
+
+                items = foodItems,
+                key = { it.foodId }
             ) { foodItem ->
+
+                //val quantity = cartMap[foodItem.foodId]?.quantity ?: 0
+
+                val quantity = cartItems
+                    .find { it.foodItem.foodId == foodItem.foodId }
+                    ?.quantity ?: 0
+
                 FoodItemCard(
                     item = foodItem,
+                    quantity = quantity,
                     onItemClick = {
-                        navController.navigate("food_details/${foodItem.id}")
+                        navController.navigate("food_details/${foodItem.foodId}")
                     },
                     onAddClick = {
-                        viewModel.onAddItemClick()
+                        //viewModel.onAddItemClick(foodItem)
+                       // navController.navigate("food_details/${foodItem.id}")
+                        cartViewModel.addToCart(foodItem,quantity)
+                        navController.navigate("food_details/${foodItem.foodId}")
+
+
                     }
                 )
+
             }
         }
     }
@@ -242,6 +281,7 @@ fun RecommendedSection() {
 @Composable
 fun FoodItemCard(
     item: FoodItem,
+    quantity: Int,
     onItemClick: () -> Unit,
     onAddClick: () -> Unit
 ) {
@@ -264,6 +304,7 @@ fun FoodItemCard(
 
             FoodItemImage(
                 imageUrl = item.image,
+                quantity = quantity,
                 onAddClick = onAddClick
             )
 
@@ -277,6 +318,7 @@ fun FoodItemCard(
 @Composable
 private fun FoodItemImage(
     imageUrl: String,
+    quantity: Int,
     onAddClick: () -> Unit
 ) {
     Box(modifier = Modifier.size(MaterialTheme.spacing.spacing130)) {
@@ -318,7 +360,10 @@ private fun FoodItemImage(
                 )
         ) {
             Text(
-                text = stringResource(R.string.add),
+                text = if (quantity == 0) {stringResource(R.string.add)}
+                else{
+                    "Qty: $quantity"
+                },
                 color = Color.Green,
                 fontWeight = FontWeight.Bold
             )

@@ -80,39 +80,6 @@ fun MenuContent(
         }
     }
 }
-@Composable
-fun MenuItemRow(item: MenuItem) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.small),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = item.name,
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.xSmall))
-
-            Text(
-                text = "₹${item.price}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-
-        Button(
-            onClick = { /* TODO: add to cart */ },
-            shape = MaterialTheme.shapes.small
-        ) {
-            Text(stringResource(R.string.add))
-        }
-    }
-}
 
     @Preview
     @Composable

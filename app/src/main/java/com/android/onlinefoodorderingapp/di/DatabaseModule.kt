@@ -2,8 +2,7 @@ package com.android.onlinefoodorderingapp.di
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
+import com.android.onlinefoodorderingapp.data.local.dao.CartDao
 import com.android.onlinefoodorderingapp.data.local.db.AppDatabase
 import dagger.Module
 import dagger.Provides
@@ -25,9 +24,14 @@ object DatabaseModule {
             .fallbackToDestructiveMigration().build()
     }
 
-        @Provides
-        fun provideRestaurantDao(database: AppDatabase) = database.restaurantDao()
+    @Provides
+    fun provideRestaurantDao(database: AppDatabase) = database.restaurantDao()
 
     @Provides
     fun provideUserDao(database: AppDatabase) = database.UserDao()
+
+
+    @Provides
+    fun provideCartDao(db: AppDatabase): CartDao = db.cartDao()
+
 }

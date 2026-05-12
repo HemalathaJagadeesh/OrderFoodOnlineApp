@@ -37,8 +37,8 @@ private val LightColorScheme = lightColorScheme(
 
 
 private val lightScheme = lightColorScheme(
-    primary = primaryLight,
-    onPrimary = onPrimaryLight,
+    primary = loginOrangePrimary,
+    onPrimary = loginOrangeOnPrimaryLight,
     primaryContainer = primaryContainerLight,
     onPrimaryContainer = onPrimaryContainerLight,
     secondary = secondaryLight,

@@ -31,6 +31,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -39,6 +41,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.android.onlinefoodorderingapp.R
+import com.android.onlinefoodorderingapp.presentation.theme.AppColors
+import com.android.onlinefoodorderingapp.presentation.theme.spacing
+import com.android.onlinefoodorderingapp.presentation.util.AppConstants
 
 @Composable
 fun OtpScreen1(
@@ -46,14 +52,14 @@ fun OtpScreen1(
     onVerify: (String) -> Unit
 ) {
 
-    var otp by remember { mutableStateOf("") }
+    var otp by remember { mutableStateOf(AppConstants.EMPTY_STRING) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    listOf(Color(0xFFFF7043), Color(0xFFFFA726))
+                    listOf(Color(AppColors.loginOrangeDark.toArgb()), Color(AppColors.loginOrangeLight.toArgb()))
                 )
             )
     ) {
@@ -61,34 +67,34 @@ fun OtpScreen1(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(MaterialTheme.spacing.large),
             verticalArrangement = Arrangement.Center
         ) {
 
             Text(
                 "Verify 🔐",
-                fontSize = 28.sp,
+                style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(MaterialTheme.spacing.small))
 
             Text(
                 "Enter the OTP sent to your phone",
                 color = Color.White.copy(alpha = 0.8f)
             )
 
-            Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(MaterialTheme.spacing.xLarge))
 
             Card(
-                shape = RoundedCornerShape(28.dp),
-                elevation = CardDefaults.cardElevation(10.dp),
+                shape = MaterialTheme.shapes.large,
+                elevation = CardDefaults.cardElevation(MaterialTheme.spacing.small),
                 modifier = Modifier.fillMaxWidth()
             ) {
 
                 Column(
-                    modifier = Modifier.padding(24.dp),
+                    modifier = Modifier.padding(MaterialTheme.spacing.large),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
@@ -97,20 +103,20 @@ fun OtpScreen1(
                         onOtpChange = { otp = it }
                     )
 
-                    Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(MaterialTheme.spacing.large))
 
                     Button(
                         onClick = { onVerify(otp) },
-                        enabled = otp.length == 6,
-                        shape = RoundedCornerShape(14.dp),
+                        enabled = otp.length == AppConstants.OTP_LENGTH,
+                        shape = MaterialTheme.shapes.medium,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(52.dp)
+                            .height(MaterialTheme.spacing.buttonHeight)
                     ) {
-                        Text("Verify OTP")
+                        Text(stringResource(R.string.verify_otp))
                     }
                     error?.let {
-                        Spacer(Modifier.height(12.dp))
+                        Spacer(Modifier.height(MaterialTheme.spacing.medium))
                         Text(it, color = Color.Red)
                     }
                 }
@@ -126,12 +132,12 @@ fun OtpInputField(
     val focusRequesters = List(6) { remember { FocusRequester() } }
 
     Row(
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         modifier = Modifier.fillMaxWidth()
     ) {
         repeat(6) { index ->
             OutlinedTextField(
-                value = otp.getOrNull(index)?.toString() ?: "",
+                value = otp.getOrNull(index)?.toString() ?: AppConstants.EMPTY_STRING,
                 onValueChange = { value ->
                     if (value.length <= 1) {
                         val newOtp = otp.padEnd(6, ' ').toCharArray()
@@ -151,9 +157,9 @@ fun OtpInputField(
                 ),
                 modifier = Modifier
                     .weight(1f)
-                    .height(56.dp)
+                    .height(MaterialTheme.spacing.buttonHeight)
                     .focusRequester(focusRequesters[index]),
-                shape = RoundedCornerShape(12.dp)
+                shape = MaterialTheme.shapes.large
             )
         }
     }
