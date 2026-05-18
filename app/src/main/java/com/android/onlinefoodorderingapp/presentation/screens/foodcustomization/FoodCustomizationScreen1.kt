@@ -68,7 +68,7 @@ fun FoodDetailsScreen1(
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 90.dp)
+            contentPadding = PaddingValues(bottom = MaterialTheme.spacing.spacing130)
         ) {
 
             item { HeaderSection(navController) }
@@ -97,7 +97,7 @@ fun HeaderSection(navController: NavController) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(220.dp)
+                .height(MaterialTheme.spacing.spacing220)
                 .background(Color.LightGray)
         )
 
@@ -240,7 +240,7 @@ fun AddOnSection() {
                     Text(name)
                     Text(
                         stringResource(R.string.price_add_rupee, price),
-                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )
                 }

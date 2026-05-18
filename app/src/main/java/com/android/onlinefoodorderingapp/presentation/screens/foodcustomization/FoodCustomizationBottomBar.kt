@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,14 +36,15 @@ import com.android.onlinefoodorderingapp.presentation.theme.spacing
 import com.android.onlinefoodorderingapp.R
 import com.android.onlinefoodorderingapp.data.local.DummyData
 import com.android.onlinefoodorderingapp.domain.model.restaurantdetails.FoodItem
+import com.android.onlinefoodorderingapp.presentation.theme.AppColors
 
 @Composable
-    fun FoodCustomizationBottomBar(
+    fun FoodCustomizationBottomBar(item:FoodItem,
     onAddToCart: (quantity: Int) -> Unit
 ) {
 
         var quantity by remember { mutableIntStateOf(1) }
-        val pricePerItem = 80
+        val pricePerItem = item.price
         val totalPrice = quantity * pricePerItem
         Surface(
             modifier = Modifier
@@ -76,11 +78,11 @@ import com.android.onlinefoodorderingapp.domain.model.restaurantdetails.FoodItem
                     .height(MaterialTheme.spacing.xxLarge),
                 shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFD32F2F)
+                    containerColor = Color(AppColors.addItemButtonColor.toArgb())
                 )
             ) {
                 Text(
-                    text = "Add Item ₹$totalPrice",
+                    text = stringResource(R.string.add_item_with_price,totalPrice.toString()),
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
@@ -98,7 +100,7 @@ fun QuantityStepper(
     Row(
         modifier = Modifier
             .clip(MaterialTheme.shapes.small)
-            .border(1.dp, Color.LightGray, MaterialTheme.shapes.small),
+            .border(MaterialTheme.spacing.border, Color.LightGray, MaterialTheme.shapes.small),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
@@ -122,6 +124,7 @@ fun QuantityStepper(
 @Preview
 @Composable
 fun FoodCustomizationBottomBarPreview() {
-    FoodCustomizationBottomBar( onAddToCart = {})
+    FoodCustomizationBottomBar( FoodItem("",
+        "",0.0,"","",true,true,""),onAddToCart = {})
 }
 

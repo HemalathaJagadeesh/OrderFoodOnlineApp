@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.android.onlinefoodorderingapp.domain.util.toUserMessage
 import com.android.onlinefoodorderingapp.presentation.util.AppConstants
+import kotlinx.coroutines.Dispatchers
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
@@ -117,10 +118,12 @@ class AuthViewModel @Inject constructor(
             result.fold(
                 onSuccess = { user ->
 
-                    sessionManager.saveSession(
-                        isLoggedIn = true,
-                        phone = user.phone
-                    )
+                    viewModelScope.launch(Dispatchers.IO) {
+                        sessionManager.saveSession(
+                            isLoggedIn = true,
+                            phone = user.phone
+                        )
+                    }
 
                     _state.value = AuthUiState.LoggedIn(user)
                 },

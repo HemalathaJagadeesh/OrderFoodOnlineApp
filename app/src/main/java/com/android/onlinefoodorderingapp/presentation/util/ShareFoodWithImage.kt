@@ -24,7 +24,7 @@ fun shareFoodWithImage(context: Context, item: FoodItem) {
 
     val request = Builder(context)
         .data(item.image) // your image URL
-        .allowHardware(false)
+        .allowHardware(false) //converting to bitmap
         .build()
 
     CoroutineScope(Dispatchers.IO).launch {

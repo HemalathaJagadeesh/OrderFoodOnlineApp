@@ -22,7 +22,7 @@ object AuthValidator {
             !trimmed.startsWith("8") &&
             !trimmed.startsWith("9")
         ) {
-            return "Invalid Indian mobile number"
+            return AppConstants.INVALID_INDIAN_MOB_NUMBER
         }
 
         return null

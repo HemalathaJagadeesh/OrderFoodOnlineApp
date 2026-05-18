@@ -29,13 +29,16 @@ data class Spacing(
     val height52: Dp = 52.dp,
 
     val offset : Dp = 12.dp,
-    val height170 : Dp = 170.dp,
-    val spacing130 : Dp = 130.dp,
-    val spacing120 : Dp = 120.dp,
     val minus10 : Dp = (-10).dp,
 
     val spacing40: Dp = 40.dp,
-    val spacing100: Dp = 100.dp
+    val spacing48: Dp = 48.dp,
+    val spacing90: Dp = 90.dp,
+    val spacing100: Dp = 100.dp,
+    val spacing120 : Dp = 120.dp,
+    val spacing130 : Dp = 130.dp,
+    val height170 : Dp = 170.dp,
+    val spacing220 : Dp = 220.dp,
 
 )
 val LocalSpacing = staticCompositionLocalOf { Spacing() }

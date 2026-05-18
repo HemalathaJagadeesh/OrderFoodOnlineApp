@@ -58,6 +58,15 @@
     <string name="car_is_empty">Cart is empty</string>
     <string name="login">Login</string>
     <string name="india_code">+91</string>
+    <string name="desc_delete_item">Delete item</string>
+    <string name="minus">-</string>
+    <string name="plus">+</string>
+    <string name="cart_total">Total: ₹%1$s</string>
+    <string name="desc_back_button">Back</string>
+    <string name="your_cart">Your Cart</string>
+    <string name="add_item_with_price">Add Item ₹%1$s</string>
+    <string name="desc_cart">Cart</string>
+    <string name="price_format">₹%s</string>
 
 
 </resources>

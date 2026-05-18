@@ -19,9 +19,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.android.onlinefoodorderingapp.R
 import com.android.onlinefoodorderingapp.presentation.theme.spacing
 
 @Composable
@@ -31,29 +33,31 @@ fun CartTopBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.onPrimaryContainer) // or your theme color
+            .background(Color.Red) // theme color
             .statusBarsPadding()
-            .padding(horizontal = MaterialTheme.spacing.medium,
-                vertical = MaterialTheme.spacing.small),
+            .padding(
+                horizontal = MaterialTheme.spacing.medium,
+                vertical = MaterialTheme.spacing.small
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
 
-        // ✅ Back Button
+
         IconButton(onClick = { navController.popBackStack() }) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = stringResource(R.string.desc_back_button),
                 tint = Color.Black
             )
         }
 
-        // ✅ Title (center)
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Your Cart",
+                text = stringResource(R.string.your_cart),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
@@ -67,7 +71,7 @@ fun CartTopBar(
             }*/
         }
 
-        // ✅ Spacer (to balance layout like your other bars)
-        Spacer(modifier = Modifier.width(48.dp))
+
+        Spacer(modifier = Modifier.width(MaterialTheme.spacing.spacing48))
     }
 }

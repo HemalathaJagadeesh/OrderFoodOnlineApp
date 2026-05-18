@@ -72,7 +72,7 @@ fun OtpScreen1(
         ) {
 
             Text(
-                "Verify 🔐",
+                "Verify",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = Color.White

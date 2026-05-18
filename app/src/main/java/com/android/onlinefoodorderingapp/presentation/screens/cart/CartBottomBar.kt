@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.android.onlinefoodorderingapp.R
+import com.android.onlinefoodorderingapp.presentation.theme.spacing
 
 @Composable
 fun CartBottomBar(
@@ -22,25 +23,23 @@ fun CartBottomBar(
     onCheckoutClick: () -> Unit
 ) {
     Surface(
-        tonalElevation = 8.dp,
-        shadowElevation = 8.dp
+        tonalElevation = MaterialTheme.spacing.small,
+        shadowElevation =  MaterialTheme.spacing.small
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding( MaterialTheme.spacing.medium),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            // ✅ Total Price
             Text(
-                text = "Total: ₹$total",
+                text = stringResource(R.string.cart_total,total),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
 
-            // ✅ Checkout Button
             Button(
                 onClick = onCheckoutClick
             ) {

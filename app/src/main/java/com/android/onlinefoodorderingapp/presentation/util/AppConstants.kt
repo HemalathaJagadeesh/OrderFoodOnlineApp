@@ -8,6 +8,8 @@ object AppConstants {
     const val COUNT_2 = 2
     const val COUNT_4 = 4
     const val COUNT_6 = 6
+    const val COUNT_7 = 6
+    const val COUNT_8 = 6
     const val INT_5 = 6
     const val INT_1 = 6
     const val ENTER_OTP = "Enter OTP"
@@ -40,5 +42,10 @@ object AppConstants {
     const val IS_LOGGED_IN = "is_logged_in"
     const val PHONE = "phone"
 
+    //RestaurantDetailsScreen
+    const val FILTER = "Filter"
+    const val VEG = "Veg"
+    const val NON_VEG = "Non-Veg"
+    const val SPICY = "Spicy"
 
 }

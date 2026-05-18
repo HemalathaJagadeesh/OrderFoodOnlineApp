@@ -38,6 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.android.onlinefoodorderingapp.R
 import com.android.onlinefoodorderingapp.presentation.theme.spacing
+import com.android.onlinefoodorderingapp.presentation.util.Routes
 import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel
 import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel2
 
@@ -70,8 +71,9 @@ fun RestaurantDetailsTopBar(navController: NavController ) {
 
         IconButton(
             onClick = {
-                navController.navigate("cart_screen")
-            }
+                navController.navigate(Routes.CART_SCREEN)
+            },
+            modifier = Modifier.padding(end = MaterialTheme.spacing.small)
         ) {
             BadgedBox(
                 badge = {
@@ -84,30 +86,12 @@ fun RestaurantDetailsTopBar(navController: NavController ) {
             ) {
                 Icon(
                     imageVector = Icons.Default.ShoppingCart,
-                    contentDescription = "Cart",
+                    contentDescription = stringResource(R.string.desc_cart),
                     tint = Color.Black
                 )
             }
         }
 
-        /*OutlinedButton(
-            onClick = { *//* filter *//* },
-            shape = MaterialTheme.shapes.large,
-            border = BorderStroke(1.dp, Color.LightGray),
-            contentPadding = PaddingValues(horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.small)
-        ) {
-            Icon(
-                imageVector = Icons.Default.ThumbUp, //it has to be Tune, check it
-                contentDescription = stringResource(R.string.desc_filter),
-                modifier = Modifier.size(MaterialTheme.spacing.medium)
-            )
-            Spacer(Modifier.width(MaterialTheme.spacing.small))
-            Text(
-                text = "FILTER",
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Medium
-            )
-        }*/
     }
 
 }

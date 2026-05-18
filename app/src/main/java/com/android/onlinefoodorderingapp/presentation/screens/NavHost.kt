@@ -40,6 +40,7 @@ import com.android.onlinefoodorderingapp.presentation.screens.cart.CartScreen1
 import com.android.onlinefoodorderingapp.presentation.screens.cart.CartTopBar
 import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel1
 import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel2
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -130,7 +131,7 @@ fun NavigationHost(
 
                 currentFoodItem?.let { item ->
 
-                    FoodCustomizationBottomBar(
+                    FoodCustomizationBottomBar(item,
                         onAddToCart = { qty ->
                             cartViewModel.addToCart(item, qty)
                         }
@@ -160,7 +161,7 @@ fun NavigationHost(
 
                 /*val totalPrice: Double =
                     cartViewModel?.totalPrice?.collectAsState()?.value ?: 0.0*/
-                val totalPrice = 10.0
+                val totalPrice by cartViewModel.totalPrice.collectAsState()
                 CartBottomBar(total = totalPrice,
                     onCheckoutClick = {})
             }

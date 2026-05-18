@@ -19,28 +19,22 @@ import kotlinx.coroutines.tasks.await
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class AuthRepositoryImpl  @Inject constructor(
+class AuthRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth
 ) : AuthRepository {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun sendOtp(
-        phone: String,
-        countryCode: String,
-        activityProvider: () -> Activity
+        phone: String, countryCode: String, activityProvider: () -> Activity
     ): SendOtpResult {
         return suspendCancellableCoroutine { continuation ->
             val activity = activityProvider()
-            val options = PhoneAuthOptions.newBuilder(auth)
-                .setPhoneNumber("$countryCode$phone")
-                .setTimeout(60L, TimeUnit.SECONDS)
-                .setActivity(activity)
+            val options = PhoneAuthOptions.newBuilder(auth).setPhoneNumber("$countryCode$phone")
+                .setTimeout(60L, TimeUnit.SECONDS).setActivity(activity)
                 .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
                     override fun onVerificationCompleted(credential: PhoneAuthCredential) {
                         auth.signInWithCredential(credential)
-
-
                     }
 
                     override fun onVerificationFailed(e: com.google.firebase.FirebaseException) {
@@ -54,34 +48,28 @@ class AuthRepositoryImpl  @Inject constructor(
                                 onCancellation = null
                             )
                         }
-
-
                     }
 
                     override fun onCodeSent(
-                        verificationId: String,
-                        token: PhoneAuthProvider.ForceResendingToken
+                        verificationId: String, token: PhoneAuthProvider.ForceResendingToken
                     ) {
-                       // onCodeSent(verificationId)
+                        // onCodeSent(verificationId)
 
                         if (continuation.isActive) {
                             continuation.resume(
-                                SendOtpResult.Success(verificationId),
-                                onCancellation = null
+                                SendOtpResult.Success(verificationId), onCancellation = null
                             )
                         }
 
                     }
-                })
-                .build()
+                }).build()
 
             PhoneAuthProvider.verifyPhoneNumber(options)
         }
     }
 
     override suspend fun verifyOtp(
-        verificationId: String,
-        code: String
+        verificationId: String, code: String
     ): AuthResult {
         return try {
             val credential = PhoneAuthProvider.getCredential(verificationId, code)
@@ -94,7 +82,7 @@ class AuthRepositoryImpl  @Inject constructor(
         } catch (e: Exception) {
             Log.e("AuthRepositoryImpl", "verifyOtp: ${e.message}")
             AuthResult.Failure(mapError(e))
-           // Result.failure(e)
+            // Result.failure(e)
         }
     }
 }

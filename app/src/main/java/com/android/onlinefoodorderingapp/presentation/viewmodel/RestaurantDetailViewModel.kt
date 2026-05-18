@@ -9,6 +9,7 @@ import com.android.onlinefoodorderingapp.domain.usecase.cart.GetCartCountUseCase
 import com.android.onlinefoodorderingapp.presentation.util.FoodFilter
 import com.android.onlinefoodorderingapp.presentation.util.RestaurantDetailUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -105,11 +106,11 @@ class RestaurantDetailViewModel @Inject constructor(
 
             val newCategory =
                 if (category.equals("All", ignoreCase = true)) {
-                    null            // CLEAR MENU CATEGORY
+                    null
                 } else if (current.menuSearchState.selectedCategory == category) {
-                    null            // ✅ toggle off same category
+                    null
                 } else {
-                    category        // ✅ select category
+                    category
                 }
 
             current.copy(
@@ -144,44 +145,6 @@ class RestaurantDetailViewModel @Inject constructor(
 
     }
 
-   /* fun onAddItemClick
-                (item: FoodItem) {
-        _state.update { current ->
-
-            val currentCart = current.cartItems
-            val existingCartItem = currentCart[item.foodId]
-
-            val updatedCart = if (existingCartItem == null) {
-                // ✅ First time add
-                currentCart + (
-                        item.foodId to CartItem(
-                            foodItem = item,
-                            quantity = 1
-                        )
-                        )
-            } else {
-                // ✅ Increase quantity
-                currentCart + (
-                        item.foodId to existingCartItem.copy(
-                            quantity = existingCartItem.quantity + 1
-                        )
-                        )
-            }
-
-            current.copy(
-                cartItems = updatedCart
-            )
-        }
-
-    }*/
-
-    /*private fun dummyFoodList() {
-        _state.value = state.value.copy(
-            allFoodItems = DummyData.foodItem,
-            foodItem = DummyData.foodItem
-        )
-    }*/
-
     private fun loadInitialData() {
         _state.update {
             it.copy(allFoodItems = DummyData.foodItem)
@@ -197,7 +160,6 @@ class RestaurantDetailViewModel @Inject constructor(
                 it.copy(allFoodItems = items)
             }
         }
-
 
     }
 

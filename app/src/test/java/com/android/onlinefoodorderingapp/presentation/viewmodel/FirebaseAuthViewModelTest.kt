@@ -61,22 +61,11 @@ class FirebaseAuthViewModelTest : BehaviorSpec({
                 } returns SendOtpResult.Success("vid")
 
                 viewModel.authState.test {
-
-                    // ✅ 1. initial
                     awaitItem() shouldBe AuthUiState1.Login
-
-                    // ✅ 2. trigger
                     viewModel.sendOtp({ activity }, "999")
-
-                    // ✅ 3. immediate emission
                     awaitItem() shouldBe AuthUiState1.Loading
-
-                    // ✅ 4. execute coroutine for Otp
                     dispatcher.scheduler.runCurrent()
-
-                    // ✅ 5. now Otp is emitted
                     awaitItem() shouldBe AuthUiState1.Otp
-
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -100,25 +89,19 @@ class FirebaseAuthViewModelTest : BehaviorSpec({
 
                 viewModel.authState.test {
 
-                    // ✅ Initial state
                     awaitItem() shouldBe AuthUiState1.Login
 
-                    // ✅ Trigger action
                     viewModel.sendOtp({ activity }, "999")
 
-                    // ✅ Immediate Loading state (before coroutine completes)
                     awaitItem() shouldBe AuthUiState1.Loading
 
-                    // ✅ Execute suspended coroutine
                     dispatcher.scheduler.runCurrent()
 
-                    // ✅ Final state after API failure
                     awaitItem() shouldBe AuthUiState1.Login
 
                     cancelAndIgnoreRemainingEvents()
                 }
 
-                // ✅ IMPORTANT: ensure coroutine completed before checking error
                 dispatcher.scheduler.runCurrent()
 
                 viewModel.errorMessage.value shouldBe expectedMessage
@@ -144,16 +127,16 @@ class FirebaseAuthViewModelTest : BehaviorSpec({
 
                     viewModel.authState.test {
 
-                        // ✅ 1. initial
+
                         awaitItem() shouldBe AuthUiState1.Login
 
-                        // ✅ 2. trigger
+
                         viewModel.verifyOtp("1234")
 
-                        // ✅ 3. RUN coroutine BEFORE expecting next state
+
                         dispatcher.scheduler.runCurrent()
 
-                        // ✅ 4. Now both emissions are available
+
                         awaitItem() shouldBe AuthUiState1.Loading
                         awaitItem() shouldBe AuthUiState1.Authenticated
 
@@ -189,23 +172,23 @@ class FirebaseAuthViewModelTest : BehaviorSpec({
 
                 viewModel.authState.test {
 
-                    // ✅ 1. initial state
+
                     awaitItem() shouldBe AuthUiState1.Login
 
-                    // ✅ 2. trigger
+
                     viewModel.verifyOtp("0000")
 
-                    // ✅ 3. IMPORTANT: run coroutine FIRST
+
                     dispatcher.scheduler.runCurrent()
 
-                    // ✅ 4. now both emissions are ready
+
                     awaitItem() shouldBe AuthUiState1.Loading
                     awaitItem() shouldBe AuthUiState1.Otp
 
                     cancelAndIgnoreRemainingEvents()
                 }
 
-                // ✅ ensure coroutine completed
+
                 dispatcher.scheduler.runCurrent()
 
                 viewModel.errorMessage.value shouldBe expectedMessage
@@ -233,16 +216,16 @@ class FirebaseAuthViewModelTest : BehaviorSpec({
 
                     viewModel.authState.test {
 
-                        // ✅ 1. initial state
+
                         awaitItem() shouldBe AuthUiState1.Login
 
-                        // ✅ 2. trigger
+
                         viewModel.verifyOtp("1234")
 
-                        // ✅ 3. CRITICAL FIX → run coroutine BEFORE expecting emissions
+
                         dispatcher.scheduler.runCurrent()
 
-                        // ✅ 4. now emissions are available
+
                         awaitItem() shouldBe AuthUiState1.Loading
                         awaitItem() shouldBe AuthUiState1.Otp
 
@@ -360,23 +343,23 @@ class FirebaseAuthViewModelTest : BehaviorSpec({
 
                 viewModel.authState.test {
 
-                    // ✅ 1. initial state
+
                     awaitItem() shouldBe AuthUiState1.Login
 
-                    // ✅ 2. trigger
+
                     viewModel.verifyOtp("1234")
 
-                    // ✅ 3. ✅ CRITICAL FIX → run coroutine FIRST
+
                     dispatcher.scheduler.runCurrent()
 
-                    // ✅ 4. now emissions are available
+
                     awaitItem() shouldBe AuthUiState1.Loading
                     awaitItem() shouldBe AuthUiState1.Otp
 
                     cancelAndIgnoreRemainingEvents()
                 }
 
-                // ✅ ensure coroutine completed
+
                 dispatcher.scheduler.runCurrent()
 
                 viewModel.errorMessage.value shouldBe expectedMessage

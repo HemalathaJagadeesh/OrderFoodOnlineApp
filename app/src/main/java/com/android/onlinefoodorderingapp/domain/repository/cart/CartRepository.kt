@@ -23,5 +23,9 @@ interface CartRepository {
 
     suspend fun clearCart()
     suspend fun getCartItemById(foodId: String)
+
+    fun interface GetCartCount {
+        operator fun invoke(): Flow<Int>
+    }
 }
 

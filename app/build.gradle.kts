@@ -141,6 +141,12 @@ dependencies {
     implementation (platform("com.google.firebase:firebase-bom:33.1.0"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
+    androidTestImplementation(platform("androidx.compose:compose-bom:2025.01.00"))
+
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    androidTestImplementation("io.kotest:kotest-framework-engine:5.9.1")
     // Compose integration
     implementation(libs.hilt.navigation.compose)
     androidTestImplementation(libs.androidx.junit)

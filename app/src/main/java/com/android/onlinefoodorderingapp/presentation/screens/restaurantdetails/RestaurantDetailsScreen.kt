@@ -43,17 +43,16 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.android.onlinefoodorderingapp.presentation.viewmodel.RestaurantDetailViewModel
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.android.onlinefoodorderingapp.R
 import com.android.onlinefoodorderingapp.domain.model.restaurantdetails.FoodItem
+import com.android.onlinefoodorderingapp.presentation.theme.AppColors
 import com.android.onlinefoodorderingapp.presentation.theme.spacing
 import com.android.onlinefoodorderingapp.presentation.util.AppConstants
 import com.android.onlinefoodorderingapp.presentation.util.FoodFilter
 import com.android.onlinefoodorderingapp.presentation.util.RestaurantDetailUiState
-import com.android.onlinefoodorderingapp.presentation.util.Routes
-import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel
 import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel2
 
 
@@ -80,10 +79,10 @@ fun RestaurantDetailsScreen(
     val foodItems by viewModel.filteredFoodItems.collectAsState()
 
 
-// ✅ Get cart data from CartViewModel
+// Get cart data from CartViewModel
     //val cartViewModel: CartViewModel2 = hiltViewModel()
     val cartItems by cartViewModel.cartItems.collectAsState()
-// ✅ Create map for fast lookup
+//  Create map for fast lookup
     val cartMap = remember(cartItems) {
         cartItems.associateBy { it.foodItem.foodId }
     }
@@ -191,14 +190,14 @@ fun RestaurantMetaRow() {
             ),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        MetaItem("50% OFF", Color(0xFF4CAF50))
-        MetaItem("⭐ 4.2", Color(0xFFFFC107))
-        MetaItem("35 mins", Color(0xFF4CAF50))
+        RestaurantInfoItem("50% OFF", Color(AppColors.borderGreen.toArgb()))
+        RestaurantInfoItem("⭐ 4.2", Color(AppColors.discountYellow.toArgb()))
+        RestaurantInfoItem("35 mins", Color(AppColors.borderGreen.toArgb()))
     }
 }
 
 @Composable
-fun MetaItem(text: String, color: Color = Color.Black) {
+fun RestaurantInfoItem(text: String, color: Color = Color.Black) {
     Text(
         text = text,
         color = color,
@@ -214,10 +213,10 @@ fun FilterRow(
     onFilterClick: (FoodFilter) -> Unit
 ) {
     val filters = listOf(
-        FoodFilter.ALL to "Filter",
-        FoodFilter.VEG to "Veg",
-        FoodFilter.NON_VEG to "Non-Veg",
-        FoodFilter.SPICY to "Spicy"
+        FoodFilter.ALL to AppConstants.FILTER,
+        FoodFilter.VEG to AppConstants.VEG,
+        FoodFilter.NON_VEG to AppConstants.NON_VEG,
+        FoodFilter.SPICY to AppConstants.SPICY
     )
 
 
@@ -228,7 +227,7 @@ fun FilterRow(
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
     ) {
         filters.forEach { (filter, label) ->
-            FilterChip(
+            FoodFilterItem(
                 text = label,
                 selected = selectedFilter == filter,
                 onClick = { onFilterClick(filter) }
@@ -239,7 +238,7 @@ fun FilterRow(
 }
 
 @Composable
-fun FilterChip(
+fun FoodFilterItem(
     text: String,
     selected: Boolean,
     onClick: () -> Unit
@@ -247,14 +246,14 @@ fun FilterChip(
     Row(
         modifier = Modifier
             .clip(MaterialTheme.shapes.small)
-            .border(MaterialTheme.spacing.border, Color(0xFF4CAF50), MaterialTheme.shapes.small)
+            .border(MaterialTheme.spacing.border, Color(AppColors.borderGreen.toArgb()), MaterialTheme.shapes.small)
             .background(if (selected) Color.Green else Color.Transparent)
             .clickable { onClick() }
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodySmall,
-            color = Color.White,
+            color = Color.DarkGray,
             modifier = Modifier.padding(
                 horizontal = MaterialTheme.spacing.medium,
                 vertical = MaterialTheme.spacing.small

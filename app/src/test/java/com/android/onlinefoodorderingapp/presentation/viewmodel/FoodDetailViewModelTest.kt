@@ -42,9 +42,6 @@ class FoodDetailViewModelTest : BehaviorSpec({
         clearAllMocks()
     }
 
-    // =========================================================
-    // ✅ CART COUNT FLOW
-    // =========================================================
     Given("cartCount") {
 
         Then("should emit values from use case") {
@@ -56,9 +53,6 @@ class FoodDetailViewModelTest : BehaviorSpec({
         }
     }
 
-    // =========================================================
-    // ✅ LOAD FOOD SUCCESS
-    // =========================================================
     Given("loadFood success") {
 
         When("valid foodId is provided") {
@@ -83,9 +77,6 @@ class FoodDetailViewModelTest : BehaviorSpec({
         }
     }
 
-    // =========================================================
-    // ✅ LOAD FOOD - INVALID ID (NEGATIVE)
-    // =========================================================
     Given("loadFood with invalid id") {
 
         When("food is not found") {
@@ -100,9 +91,6 @@ class FoodDetailViewModelTest : BehaviorSpec({
         }
     }
 
-    // =========================================================
-    // ✅ OPTION SELECTION
-    // =========================================================
     Given("option selected") {
 
         val option = OptionItem("1", "Test")
@@ -118,9 +106,6 @@ class FoodDetailViewModelTest : BehaviorSpec({
         }
     }
 
-    // =========================================================
-    // ✅ OPTION OVERRIDE (NEGATIVE)
-    // =========================================================
     Given("same option group selected again") {
 
         When("user selects another option in same group") {
@@ -170,9 +155,6 @@ class FoodDetailViewModelTest : BehaviorSpec({
         }
     }
 
-    // =========================================================
-    // ✅ INCREASE QUANTITY
-    // =========================================================
     Given("increase quantity") {
 
         When("called multiple times") {
@@ -194,9 +176,6 @@ class FoodDetailViewModelTest : BehaviorSpec({
         }
     }
 
-    // =========================================================
-    // ✅ DECREASE QUANTITY
-    // =========================================================
     Given("decrease quantity") {
 
         When("quantity > 1") {
@@ -210,9 +189,6 @@ class FoodDetailViewModelTest : BehaviorSpec({
         }
     }
 
-    // =========================================================
-    // ✅ DECREASE BELOW 1 (NEGATIVE)
-    // =========================================================
     Given("decrease quantity below 1") {
 
         When("quantity is already 1") {
@@ -225,9 +201,6 @@ class FoodDetailViewModelTest : BehaviorSpec({
         }
     }
 
-    // =========================================================
-    // ✅ CALCULATE TOTAL (CURRENT IMPLEMENTATION)
-    // =========================================================
     Given("calculateTotal") {
 
         When("called after updates") {
@@ -240,9 +213,6 @@ class FoodDetailViewModelTest : BehaviorSpec({
         }
     }
 
-    // =========================================================
-    // ✅ ADD TO CART SUCCESS
-    // =========================================================
     Given("addToCart with valid food") {
 
         When("food is loaded") {
@@ -257,9 +227,6 @@ class FoodDetailViewModelTest : BehaviorSpec({
         }
     }
 
-    // =========================================================
-    // ✅ ADD TO CART WITHOUT FOOD (NEGATIVE)
-    // =========================================================
     Given("addToCart without food") {
 
         When("foodItem is null") {
@@ -273,9 +240,6 @@ class FoodDetailViewModelTest : BehaviorSpec({
         }
     }
 
-    // =========================================================
-    // ✅ MULTIPLE ACTIONS CONSISTENCY
-    // =========================================================
     Given("multiple state updates") {
 
         When("user performs multiple actions") {
@@ -286,20 +250,17 @@ class FoodDetailViewModelTest : BehaviorSpec({
 
                     viewModel.state.test {
 
-                        // ✅ Load data (async)
                         viewModel.loadFood("1")
 
-                        awaitItem() // initial
+                        awaitItem()
                         val loadedState = expectMostRecentItem()
 
-                        // ✅ Get correct key dynamically
                         val key = loadedState.optionGroups
                             .firstOrNull { it.title == "Extras" }?.title
                             ?: loadedState.optionGroups.first().title
 
                         val option = OptionItem("1", "Option")
 
-                        // ✅ Perform actions AFTER state ready
                         viewModel.increaseQty()   // 1 → 2
                         viewModel.onOptionSelected(key, option)
 
@@ -307,7 +268,6 @@ class FoodDetailViewModelTest : BehaviorSpec({
 
                         println("State = $state") // debug
 
-                        // ✅ Assertions
                         state.quantity shouldBe 2
                         state.selectedOptions[key] shouldBe option
 

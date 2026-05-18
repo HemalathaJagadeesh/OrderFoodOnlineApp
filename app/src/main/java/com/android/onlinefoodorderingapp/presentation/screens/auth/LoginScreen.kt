@@ -68,7 +68,7 @@ fun LoginScreen(
         ) {
 
             Text(
-                "Foodie 🍔",
+                "Foodie",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
