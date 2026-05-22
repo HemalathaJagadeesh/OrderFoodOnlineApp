@@ -30,6 +30,7 @@ import com.android.onlinefoodorderingapp.domain.model.restaurantdetails.FoodItem
 import com.android.onlinefoodorderingapp.presentation.theme.spacing
 import com.android.onlinefoodorderingapp.presentation.util.AppConstants
 import com.android.onlinefoodorderingapp.presentation.util.shareFoodWithImage
+import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel
 import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel2
 import com.android.onlinefoodorderingapp.presentation.viewmodel.FoodDetailViewModel
 
@@ -38,7 +39,7 @@ import com.android.onlinefoodorderingapp.presentation.viewmodel.FoodDetailViewMo
 fun FoodDetailsScreen1(
     foodId: String?,
     navController: NavController,
-    cartViewModel: CartViewModel2,
+    cartViewModel: CartViewModel,
     onFoodLoaded: (FoodItem) -> Unit,
     viewModel: FoodDetailViewModel = hiltViewModel()
 ) {
@@ -47,7 +48,7 @@ fun FoodDetailsScreen1(
     /*val foodItem = state.allFoodItems.find { it.id == foodId }
         ?: return*/
 
-
+    Log.d("CartVM_FoodCustomization", "Instance: ${cartViewModel.hashCode()}")
     val state by viewModel.state.collectAsState()
     val foodItem = state.foodItem
 
@@ -273,10 +274,10 @@ fun shareFoodItem(context: Context, item: FoodItem) {
 @Preview
 @Composable
 fun FoodDetailsScreen1Preview() {
-    FoodDetailsScreen1(
+   /* FoodDetailsScreen1(
         foodId = AppConstants.EMPTY_STRING,
         navController = NavController(LocalContext.current),
         cartViewModel = CartViewModel2(),
         onFoodLoaded = {}
-    )
+    )*/
 }

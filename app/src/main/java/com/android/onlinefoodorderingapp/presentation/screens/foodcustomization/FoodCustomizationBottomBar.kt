@@ -19,10 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,19 +27,22 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.android.onlinefoodorderingapp.presentation.theme.spacing
 import com.android.onlinefoodorderingapp.R
-import com.android.onlinefoodorderingapp.data.local.DummyData
 import com.android.onlinefoodorderingapp.domain.model.restaurantdetails.FoodItem
 import com.android.onlinefoodorderingapp.presentation.theme.AppColors
 
 @Composable
-    fun FoodCustomizationBottomBar(item:FoodItem,
-    onAddToCart: (quantity: Int) -> Unit
+    fun FoodCustomizationBottomBar(
+    item: FoodItem,
+    quantity: Int,
+    onIncrease: () -> Unit,
+    onDecrease: () -> Unit,
+    onAddToCart: (Int) -> Unit
+
 ) {
 
-        var quantity by remember { mutableIntStateOf(1) }
+
         val pricePerItem = item.price
         val totalPrice = quantity * pricePerItem
         Surface(
@@ -63,8 +62,8 @@ import com.android.onlinefoodorderingapp.presentation.theme.AppColors
             // Quantity Stepper
             QuantityStepper(
                 quantity = quantity,
-                onIncrease = { quantity++ },
-                onDecrease = { if (quantity > 1) quantity-- }
+                onIncrease = onIncrease,
+                onDecrease =onDecrease
             )
 
 
@@ -124,7 +123,15 @@ fun QuantityStepper(
 @Preview
 @Composable
 fun FoodCustomizationBottomBarPreview() {
-    FoodCustomizationBottomBar( FoodItem("",
-        "",0.0,"","",true,true,""),onAddToCart = {})
+    FoodCustomizationBottomBar(
+        FoodItem(
+            "",
+            "", 0.0, "", "", true, true, ""
+        ),
+        onAddToCart = {},
+        quantity = TODO(),
+        onIncrease = TODO(),
+        onDecrease = TODO(),
+    )
 }
 

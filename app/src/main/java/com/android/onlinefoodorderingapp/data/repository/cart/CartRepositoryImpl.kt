@@ -46,14 +46,21 @@ class CartRepositoryImpl
      * - Else → insert new item
      */
 
-    override suspend fun addToCart(item: FoodItem) {
+    override suspend fun addToCart(item: FoodItem, quantity: Int) {
+
         val id = item.foodId
 
-        cartDao.getItemById(id)?.let {
-            cartDao.increaseQuantity(id)
-        } ?: run {
-            cartDao.insertCartItem(item.toCartEntity())  // ✅ safe
+        val existingItem = cartDao.getItemById(id)
+
+        if (existingItem != null) {
+            val newQuantity = existingItem.quantity + quantity
+            cartDao.updateQuantity(id, newQuantity)
+        } else {
+            cartDao.insertCartItem(
+                item.toCartEntity().copy(quantity = quantity)
+            )
         }
+
     }
 
 

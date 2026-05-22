@@ -13,7 +13,7 @@ interface CartRepository {
 
     fun getTotalPrice(): Flow<Double>
 
-    suspend fun addToCart(item: FoodItem)
+    suspend fun addToCart(item: FoodItem,quantity: Int)
 
     suspend fun increaseQuantity(foodId: String)
 

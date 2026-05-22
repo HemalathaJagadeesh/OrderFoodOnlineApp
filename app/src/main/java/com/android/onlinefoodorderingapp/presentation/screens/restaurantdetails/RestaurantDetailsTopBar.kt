@@ -1,5 +1,6 @@
 package com.android.onlinefoodorderingapp.presentation.screens.restaurantdetails
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -43,10 +44,12 @@ import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel
 import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel2
 
 @Composable
-fun RestaurantDetailsTopBar(navController: NavController ) {
+fun RestaurantDetailsTopBar(navController: NavController,cartViewModel: CartViewModel ) {
 
 
-    val cartViewModel: CartViewModel2 = hiltViewModel()
+    Log.d("CartVM_RestaurantDetailsTop", "Instance: ${cartViewModel.hashCode()}")
+
+    // val cartViewModel: CartViewModel2 = hiltViewModel()
     val cartCount by cartViewModel.cartCount.collectAsState(initial = 0)
 
     Row(
@@ -73,9 +76,10 @@ fun RestaurantDetailsTopBar(navController: NavController ) {
             onClick = {
                 navController.navigate(Routes.CART_SCREEN)
             },
-            modifier = Modifier.padding(end = MaterialTheme.spacing.small)
+            modifier = Modifier.padding(end = MaterialTheme.spacing.medium)
         ) {
             BadgedBox(
+                modifier = Modifier.padding(end = MaterialTheme.spacing.medium),
                 badge = {
                     if (cartCount > 0) {
                         Badge {

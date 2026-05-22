@@ -1,5 +1,6 @@
 package com.android.onlinefoodorderingapp.presentation.screens.restaurantdetails
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -53,6 +54,7 @@ import com.android.onlinefoodorderingapp.presentation.theme.spacing
 import com.android.onlinefoodorderingapp.presentation.util.AppConstants
 import com.android.onlinefoodorderingapp.presentation.util.FoodFilter
 import com.android.onlinefoodorderingapp.presentation.util.RestaurantDetailUiState
+import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel
 import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel2
 
 
@@ -60,16 +62,11 @@ import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel2
 @Composable
 fun RestaurantDetailsScreen(
     restaurantId: String?,
-    navController: NavController,cartViewModel: CartViewModel2,
+    navController: NavController, cartViewModel: CartViewModel,
     viewModel: RestaurantDetailViewModel = hiltViewModel()
 ) {
+    Log.d("CartVM_RestDetailsScreen", "Instance: ${cartViewModel.hashCode()}")
 
-    //val cartCount by viewModel.cartCount.collectAsState()
-
-   /* RestaurantDetailsTopBar(
-        navController = navController,
-        cartCount = cartCount
-    )*/
 
     LaunchedEffect(restaurantId) {
         viewModel.loadData(restaurantId ?: AppConstants.EMPTY_STRING)
@@ -79,13 +76,12 @@ fun RestaurantDetailsScreen(
     val foodItems by viewModel.filteredFoodItems.collectAsState()
 
 
-// Get cart data from CartViewModel
-    //val cartViewModel: CartViewModel2 = hiltViewModel()
+
     val cartItems by cartViewModel.cartItems.collectAsState()
 //  Create map for fast lookup
-    val cartMap = remember(cartItems) {
+   /* val cartMap = remember(cartItems) {
         cartItems.associateBy { it.foodItem.foodId }
-    }
+    }*/
 
 
     val isCollapsed by remember {

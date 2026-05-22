@@ -30,19 +30,19 @@ interface CartDao {
 
     //Update exact quantity
     @Query("UPDATE cart_items SET quantity = :quantity WHERE foodId = :itemId")
-    suspend fun updateQuantity(itemId: String, quantity: Int)
+    suspend fun updateQuantity(itemId: String, quantity: Int): Int
 
     //Increase quantity (efficient query)
     @Query("UPDATE cart_items SET quantity = quantity + 1 WHERE foodId = :id")
-    suspend fun increaseQuantity(id: String)
+    suspend fun increaseQuantity(id: String): Int
 
     //Decrease quantity (only if > 1)
     @Query("UPDATE cart_items SET quantity = quantity - 1 WHERE foodId = :id AND quantity > 1")
-    suspend fun decreaseQuantity(id: String)
+    suspend fun decreaseQuantity(id: String):Int
 
     //Delete by ID
     @Query("DELETE FROM cart_items WHERE foodId = :id")
-    suspend fun deleteById(id: String)
+    suspend fun deleteById(id: String):Int
 
     // Delete entity
     @Delete

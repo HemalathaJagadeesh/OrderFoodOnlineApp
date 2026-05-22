@@ -2,7 +2,6 @@
 
 package com.android.onlinefoodorderingapp.presentation.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
@@ -10,12 +9,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,11 +35,7 @@ import com.android.onlinefoodorderingapp.presentation.screens.home.HomeScreen
 import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel
 import com.android.onlinefoodorderingapp.presentation.screens.cart.CartBottomBar
 import com.android.onlinefoodorderingapp.presentation.screens.cart.CartScreen
-import com.android.onlinefoodorderingapp.presentation.screens.cart.CartScreen1
 import com.android.onlinefoodorderingapp.presentation.screens.cart.CartTopBar
-import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel1
-import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel2
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,7 +71,8 @@ fun NavigationHost(
     var currentFoodItem by remember { mutableStateOf<FoodItem?>(null) }
 
 
-    val cartViewModel: CartViewModel2 = hiltViewModel()
+    val cartViewModel: CartViewModel = hiltViewModel()
+    var foodQuantity by remember { mutableIntStateOf(1) }
 
     Scaffold(topBar = {
         when (currentRoute) {
@@ -93,7 +89,7 @@ fun NavigationHost(
                     ?.collectAsState()
 
 
-                cartCount?.value?.let { RestaurantDetailsTopBar(navController) }
+                cartCount?.value?.let { RestaurantDetailsTopBar(navController,cartViewModel) }
             }
 
             Routes.FOOD_DETAILS_SCREEN -> {
@@ -105,7 +101,7 @@ fun NavigationHost(
                     ?.sumOf { it.quantity } ?: 0*/
 
 
-                RestaurantDetailsTopBar(navController)
+                RestaurantDetailsTopBar(navController,cartViewModel)
             }
             Routes.CART_SCREEN ->{
 
@@ -131,10 +127,15 @@ fun NavigationHost(
 
                 currentFoodItem?.let { item ->
 
-                    FoodCustomizationBottomBar(item,
-                        onAddToCart = { qty ->
-                            cartViewModel.addToCart(item, qty)
+                    FoodCustomizationBottomBar(
+                        item = item,
+                        quantity = foodQuantity,
+                        onIncrease = { foodQuantity++ },
+                        onDecrease = { if (foodQuantity > 1) foodQuantity-- },
+                        onAddToCart = {
+                            cartViewModel.addToCart(item, foodQuantity)
                         }
+
                     )
 
                 }

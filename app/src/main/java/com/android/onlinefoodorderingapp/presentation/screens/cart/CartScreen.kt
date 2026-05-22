@@ -25,6 +25,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -37,13 +38,20 @@ import androidx.navigation.NavController
 import com.android.onlinefoodorderingapp.presentation.theme.spacing
 import com.android.onlinefoodorderingapp.R
 import com.android.onlinefoodorderingapp.domain.model.CartItem
+import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel
 import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel2
 
 @Composable
-fun CartScreen(navController: NavController, cartViewModel: CartViewModel2) {
+fun CartScreen(navController: NavController, cartViewModel: CartViewModel) {
 
     val cartItems by cartViewModel.cartItems.collectAsState()
+    val totalPrice by cartViewModel.totalPrice.collectAsState()
+    Log.d("CartVM_CartScreen", "Instance: ${cartViewModel.hashCode()}")
 
+
+    LaunchedEffect(cartItems) {
+        Log.d("FLOW_CHECK", "cartItems changed: $cartItems")
+    }
 
     if (cartItems.isEmpty()) {
 
@@ -61,7 +69,7 @@ fun CartScreen(navController: NavController, cartViewModel: CartViewModel2) {
 
         LazyColumn {
 
-            items(cartItems, key = { it.foodItem.foodId }) { item ->
+            items(cartItems,key = { it.foodItem.foodId + it.quantity }) { item ->
                 val quantity = item.quantity
                 Log.i("TAG", "CartScreen: ${item.foodItem.name}, qty=$quantity")
                 CartItemRow(
