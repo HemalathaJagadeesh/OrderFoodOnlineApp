@@ -27,6 +27,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,7 +69,7 @@ fun LoginScreen(
         ) {
 
             Text(
-                "Foodie",
+                text = stringResource(R.string.foodie),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
@@ -122,6 +123,7 @@ fun LoginScreen(
                         shape = MaterialTheme.shapes.small,
                         modifier = Modifier.fillMaxWidth()
                             .focusRequester(phoneFocusRequester)
+                            .testTag("phone_input")
                     )
 
                     Spacer(Modifier.height(MaterialTheme.spacing.large))
@@ -133,6 +135,7 @@ fun LoginScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(MaterialTheme.spacing.buttonHeight)
+                            .testTag("send_otp_button")
                     ) {
                         Text(stringResource(R.string.send_otp))
                     }

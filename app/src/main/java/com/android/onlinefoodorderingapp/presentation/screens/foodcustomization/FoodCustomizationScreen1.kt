@@ -16,6 +16,7 @@ import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,45 +46,86 @@ fun FoodDetailsScreen1(
 ) {
 
 
-    /*val foodItem = state.allFoodItems.find { it.id == foodId }
-        ?: return*/
+    val context = LocalContext.current
 
-    Log.d("CartVM_FoodCustomization", "Instance: ${cartViewModel.hashCode()}")
     val state by viewModel.state.collectAsState()
     val foodItem = state.foodItem
 
-    Log.i("TAG", "FoodDetailsScreen1: ${foodItem?.name}")
 
-
+// Load data
     LaunchedEffect(foodId) {
         foodId?.let { viewModel.loadFood(it) }
 
     }
-    // ✅ Send data back to NavigationHost
+    //Send data back to NavigationHost
     LaunchedEffect(foodItem) {
         foodItem?.let { onFoodLoaded(it) }
     }
 
 
-    Box(modifier = Modifier.fillMaxSize()) {
+
+    FoodDetailsContent(
+        foodItem = foodItem,
+        onShareClick = { item ->
+            shareFoodWithImage(context, item)
+        }
+    )
+
+
+
+    /* Box(modifier = Modifier.fillMaxSize()) {
+
+         LazyColumn(
+             modifier = Modifier.fillMaxSize(),
+             contentPadding = PaddingValues(bottom = MaterialTheme.spacing.spacing130)
+         ) {
+
+             item { HeaderSection(navController) }
+
+             item { FoodInfoSection(state.foodItem) }
+
+             item { OptionGroupSection() }
+
+             item { AddOnSection() }
+         }*/
+
+        /*FoodCustomizationBottomBar(
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )*/
+    //}
+}
+@Composable
+fun FoodDetailsContent(
+    foodItem: FoodItem?,
+    onShareClick: (FoodItem) -> Unit
+) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .testTag("food_details_screen")
+    ) {
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = MaterialTheme.spacing.spacing130)
         ) {
 
-            item { HeaderSection(navController) }
+            item {
+                FoodInfoSection(
+                    foodItem = foodItem,
+                    onShareClick = onShareClick
+                )
+            }
 
-            item { FoodInfoSection(state.foodItem) }
+            item {
+                OptionGroupSection()
+            }
 
-            item { OptionGroupSection() }
-
-            item { AddOnSection() }
+            item {
+                AddOnSection()
+            }
         }
-
-        /*FoodCustomizationBottomBar(
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )*/
     }
 }
 
@@ -122,7 +164,8 @@ fun HeaderSection(navController: NavController) {
 // ---------------------- FOOD INFO ----------------------
 
 @Composable
-fun FoodInfoSection(foodItem: FoodItem?) {
+fun FoodInfoSection(foodItem: FoodItem?,
+                    onShareClick: (FoodItem) -> Unit) {
     val context = LocalContext.current
     Column(modifier = Modifier.padding(MaterialTheme.spacing.medium)) {
 
@@ -136,15 +179,18 @@ fun FoodInfoSection(foodItem: FoodItem?) {
                 Text(
                     text = it.name,
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.testTag(stringResource(R.string.tt_food_name_text))
                 )
 
                 IconButton(
                     onClick = {
                         //shareFoodItem(context, it)
 
-                        shareFoodWithImage(context, foodItem)
-                    }) {
+                        //shareFoodWithImage(context, foodItem)
+                        onShareClick(it)
+                    },
+                    modifier = Modifier.testTag(stringResource(R.string.tt_share_button))) {
                     Icon(Icons.Default.Share, contentDescription = "Share")
 
                 }
@@ -157,7 +203,8 @@ fun FoodInfoSection(foodItem: FoodItem?) {
             Text(
                 text = foodItem.description,
                 color = Color.Gray,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.testTag(stringResource(R.string.tt_food_description))
             )
         }
 
@@ -168,7 +215,9 @@ fun FoodInfoSection(foodItem: FoodItem?) {
                 stringResource(
                     R.string.price_rupee,
                     foodItem?.price ?: stringResource(R.string.price_free)
-                ), fontWeight = FontWeight.Bold
+                ), fontWeight = FontWeight.Bold,
+            modifier = Modifier.testTag(stringResource(R.string.tt_food_price))
+
         )
     }
 }

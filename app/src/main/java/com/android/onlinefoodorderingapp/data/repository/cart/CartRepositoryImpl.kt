@@ -1,6 +1,5 @@
 package com.android.onlinefoodorderingapp.data.repository.cart
 
-import android.util.Log
 import com.android.onlinefoodorderingapp.data.local.dao.CartDao
 import com.android.onlinefoodorderingapp.data.mapper.toCartEntity
 import com.android.onlinefoodorderingapp.data.mapper.toCartItem
@@ -26,7 +25,6 @@ class CartRepositoryImpl
     }
 
 
-
     override fun getTotalItems(): Flow<Int> {
         return cartDao.getCartItems()
             .map { cartItems ->
@@ -41,7 +39,7 @@ class CartRepositoryImpl
     }
 
     /**
-     * ✅ Smart Add:
+     *
      * - If item exists → increase quantity
      * - Else → insert new item
      */
@@ -65,55 +63,47 @@ class CartRepositoryImpl
 
 
     /**
-     * ✅ Increase quantity directly
+     * Increase quantity directly
      */
-    override suspend fun increaseQuantity(itemId: String) {
-
-        Log.d("CartDebug", "INCREASE CALLED")
-
-        val before = cartDao.getItemById(itemId)
-        Log.d("CartDebug", "Before: ${before?.quantity}")
-
-        cartDao.increaseQuantity(itemId)
-
-        val after = cartDao.getItemById(itemId)
-        Log.d("CartDebug", "After: ${after?.quantity}")
-
+    override suspend fun increaseQuantity(foodId: String) {
+        //val before = cartDao.getItemById(itemId)
+        cartDao.increaseQuantity(foodId)
+        //val after = cartDao.getItemById(itemId)
     }
 
     /**
-     * ✅ Smart decrease:
      * - If qty > 1 → decrease
      * - If qty == 1 → remove item
      */
-    override suspend fun decreaseQuantity(itemId: String) {
-        val item = cartDao.getItemById(itemId)
+    override suspend fun decreaseQuantity(foodId: String) {
+        val item = cartDao.getItemById(foodId)
 
         if (item != null) {
             if (item.quantity > 1) {
-                cartDao.decreaseQuantity(itemId)
+                cartDao.decreaseQuantity(foodId)
             } else {
-                cartDao.deleteById(itemId)
+                cartDao.deleteById(foodId)
             }
         }
     }
 
     /**
-     * ✅ Remove item completely
+     * Remove item completely
      */
-    override suspend fun removeItem(itemId: String) {
-        cartDao.deleteById(itemId)
+    override suspend fun removeItem(foodId: String) {
+        cartDao.deleteById(foodId)
     }
 
     /**
-     * ✅ Clear entire cart
+     *  Clear entire cart
      */
     override suspend fun clearCart() {
         cartDao.clearCart()
     }
 
-    override suspend fun getCartItemById(foodId: String) {
-        cartDao.getItemById(foodId)
+    override suspend fun getCartItemById(foodId: String): CartItem? {
+        val item = cartDao.getItemById(foodId)
+        return item?.toCartItem()
     }
 
 }

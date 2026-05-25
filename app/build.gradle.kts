@@ -50,6 +50,31 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.14"
     }
+
+
+    packaging {
+
+        resources {
+
+            excludes += setOf(
+
+                // ✅ Native debug conflicts (your current error)
+                "win32-x86/attach_hotspot_windows.dll",
+                "win32-x86-64/attach_hotspot_windows.dll",
+
+                // ✅ Common META-INF duplicates
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1",
+                "META-INF/licenses/**",
+                "META-INF/LICENSE*",
+                "META-INF/NOTICE*",
+                "META-INF/*.kotlin_module"
+            )
+
+        }
+
+    }
+
 }
 
 dependencies {
@@ -141,7 +166,7 @@ dependencies {
     implementation (platform("com.google.firebase:firebase-bom:33.1.0"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
-    androidTestImplementation(platform("androidx.compose:compose-bom:2025.01.00"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.06.00"))
 
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-test-manifest")

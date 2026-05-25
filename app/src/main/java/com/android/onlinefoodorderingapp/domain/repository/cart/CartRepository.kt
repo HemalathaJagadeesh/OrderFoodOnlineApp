@@ -22,7 +22,7 @@ interface CartRepository {
     suspend fun removeItem(foodId: String)
 
     suspend fun clearCart()
-    suspend fun getCartItemById(foodId: String)
+    suspend fun getCartItemById(foodId: String): CartItem?
 
     fun interface GetCartCount {
         operator fun invoke(): Flow<Int>

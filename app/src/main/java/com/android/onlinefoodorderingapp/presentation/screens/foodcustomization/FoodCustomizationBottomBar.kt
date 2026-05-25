@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -74,7 +75,8 @@ import com.android.onlinefoodorderingapp.presentation.theme.AppColors
                 onClick = { onAddToCart(quantity) },
                 modifier = Modifier
                     .weight(1f)
-                    .height(MaterialTheme.spacing.xxLarge),
+                    .height(MaterialTheme.spacing.xxLarge)
+                .testTag(stringResource(R.string.tt_add_to_cart_button)),
                 shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(AppColors.addItemButtonColor.toArgb())
@@ -83,7 +85,8 @@ import com.android.onlinefoodorderingapp.presentation.theme.AppColors
                 Text(
                     text = stringResource(R.string.add_item_with_price,totalPrice.toString()),
                     color = Color.White,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.testTag(stringResource(R.string.tt_total_price_text))
                 )
             }
         }
@@ -103,18 +106,21 @@ fun QuantityStepper(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        IconButton(onClick = onDecrease, enabled = quantity > 1) {
+        IconButton(onClick = onDecrease, enabled = quantity > 1,
+            modifier = Modifier.testTag(stringResource(R.string.tt_decrease_button))) {
             Icon(Icons.Default.Remove, contentDescription = stringResource(R.string.desc_decrease_quantity))
         }
 
         Text(
             text = quantity.toString(),
-            modifier = Modifier.padding(horizontal = MaterialTheme.spacing.small),
+            modifier = Modifier.padding(horizontal = MaterialTheme.spacing.small)
+                .testTag(stringResource(R.string.tt_quantity_text)),
             fontWeight = FontWeight.Bold,
             color = Color.Black
         )
 
-        IconButton(onClick = onIncrease) {
+        IconButton(onClick = onIncrease,
+            modifier = Modifier.testTag(stringResource(R.string.tt_increase_button))) {
             Icon(Icons.Default.Add, contentDescription = stringResource(R.string.desc_increase_quantity))
         }
     }
@@ -123,15 +129,10 @@ fun QuantityStepper(
 @Preview
 @Composable
 fun FoodCustomizationBottomBarPreview() {
-    FoodCustomizationBottomBar(
-        FoodItem(
-            "",
-            "", 0.0, "", "", true, true, ""
-        ),
-        onAddToCart = {},
-        quantity = TODO(),
-        onIncrease = TODO(),
-        onDecrease = TODO(),
-    )
+
+    FoodDetailsContent(FoodItem(
+        "",
+        "", 0.0, "", "", true, true, ""
+    )) { }
 }
 

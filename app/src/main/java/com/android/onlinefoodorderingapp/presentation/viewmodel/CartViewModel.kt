@@ -37,9 +37,7 @@ class CartViewModel @Inject constructor(
 
 ) : ViewModel() {
 
-    init {
-        Log.d("CartVM", "Instance: ${this.hashCode()}")
-    }
+
 
     val cartItems = getCartItemsUseCase()
         .stateIn(
@@ -63,9 +61,8 @@ class CartViewModel @Inject constructor(
         )
 
 
-    init {
+    /*init {
 
-        Log.d("DEBUG_VM", "ViewModel initialized")
 
         viewModelScope.launch {
             cartItems.collect { list ->
@@ -77,7 +74,7 @@ class CartViewModel @Inject constructor(
             }
         }
 
-    }
+    }*/
 
     fun removeFromCart(id: String) {
         viewModelScope.launch {
@@ -102,10 +99,7 @@ class CartViewModel @Inject constructor(
     fun increaseQuantity(id: String) {
         viewModelScope.launch {
 
-            Log.d("CartDebug", "Increasing ID: $id")
-
             val item =getCartItemByIdUseCase(id)
-            Log.d("CartDebug", "Item in DB: $item")
 
             increaseQuantityUseCase(id)
         }

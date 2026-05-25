@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -46,19 +47,23 @@ fun CartScreen(navController: NavController, cartViewModel: CartViewModel) {
 
     val cartItems by cartViewModel.cartItems.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
-    Log.d("CartVM_CartScreen", "Instance: ${cartViewModel.hashCode()}")
 
 
-    LaunchedEffect(cartItems) {
-        Log.d("FLOW_CHECK", "cartItems changed: $cartItems")
-    }
+    CartScreenContent(
+        cartItems = cartItems,
+        onAdd = { id -> cartViewModel.increaseQuantity(id) },
+        onRemove = { id -> cartViewModel.decreaseQuantity(id) },
+        onDelete = { id -> cartViewModel.removeItem(id) }
+    )
 
-    if (cartItems.isEmpty()) {
+
+    /*if (cartItems.isEmpty()) {
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(MaterialTheme.spacing.small),
+                .padding(MaterialTheme.spacing.small)
+                .testTag(stringResource(R.string.test_tag_empty_cart)),
             contentAlignment = Alignment.Center
         ) {
             Text(stringResource(R.string.car_is_empty))
@@ -67,11 +72,10 @@ fun CartScreen(navController: NavController, cartViewModel: CartViewModel) {
     } else {
 
 
-        LazyColumn {
+        LazyColumn(modifier = Modifier.testTag(stringResource(R.string.test_tag_cart_list))) {
 
             items(cartItems,key = { it.foodItem.foodId + it.quantity }) { item ->
                 val quantity = item.quantity
-                Log.i("TAG", "CartScreen: ${item.foodItem.name}, qty=$quantity")
                 CartItemRow(
                     item = item,
                     onAdd = { cartViewModel.increaseQuantity(item.foodItem.foodId) },
@@ -82,8 +86,49 @@ fun CartScreen(navController: NavController, cartViewModel: CartViewModel) {
             }
         }
 
-    }
+    }*/
 
+}
+
+@Composable
+fun CartScreenContent(
+    cartItems: List<CartItem>,
+    onAdd: (String) -> Unit,
+    onRemove: (String) -> Unit,
+    onDelete: (String) -> Unit
+) {
+
+    if (cartItems.isEmpty()) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(MaterialTheme.spacing.small)
+                .testTag(stringResource(R.string.test_tag_empty_cart)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(stringResource(R.string.car_is_empty))
+        }
+
+    } else {
+
+        LazyColumn(
+            modifier = Modifier.testTag(stringResource(R.string.test_tag_cart_list))
+        ) {
+            items(
+                cartItems,
+                key = { it.foodItem.foodId + it.quantity }
+            ) { item ->
+
+                CartItemRow(
+                    item = item,
+                    onAdd = { onAdd(item.foodItem.foodId) },
+                    onRemove = { onRemove(item.foodItem.foodId) },
+                    onDelete = { onDelete(item.foodItem.foodId) }
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -95,10 +140,18 @@ fun CartItemRow(
 ) {
 
 
+
+    val cartItemId = stringResource(
+        R.string.test_tag_cart_item_id,
+        item.foodItem.foodId
+    )
+
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.spacing.small, vertical = MaterialTheme.spacing.xSmall),
+            .padding(horizontal = MaterialTheme.spacing.small, vertical = MaterialTheme.spacing.xSmall)
+            .testTag(cartItemId),
         shape = MaterialTheme.shapes.medium,
         elevation = CardDefaults.cardElevation(defaultElevation = MaterialTheme.spacing.xSmall)
     ) {
@@ -145,6 +198,10 @@ fun CartItemRow(
                     modifier = Modifier
                         .size(MaterialTheme.spacing.large)
                         .background(Color.LightGray.copy(alpha = 0.3f), CircleShape)
+                        .testTag(stringResource(
+                            R.string.test_tag_remove,
+                            item.foodItem.foodId
+                        ))
                 ) {
                     Text(stringResource(R.string.minus), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 }
@@ -163,6 +220,10 @@ fun CartItemRow(
                     modifier = Modifier
                         .size(MaterialTheme.spacing.large)
                         .background(MaterialTheme.colorScheme.primary, CircleShape)
+                        .testTag(stringResource(
+                            R.string.test_tag_add,
+                            item.foodItem.foodId
+                        ))
                 ) {
                     Text(stringResource(R.string.plus), color = Color.White, style = MaterialTheme.typography.titleMedium)
                 }
@@ -170,7 +231,8 @@ fun CartItemRow(
 
             Spacer(modifier = Modifier.width(MaterialTheme.spacing.small))
 
-            IconButton(onClick = onDelete) {
+            IconButton(onClick = onDelete,
+                modifier = Modifier.testTag(stringResource(R.string.test_tag_delete, item.foodItem.foodId))) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = stringResource(R.string.desc_delete_item),

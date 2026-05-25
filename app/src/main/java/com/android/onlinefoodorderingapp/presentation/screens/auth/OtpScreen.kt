@@ -6,12 +6,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -32,15 +30,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.android.onlinefoodorderingapp.R
 import com.android.onlinefoodorderingapp.presentation.theme.AppColors
 import com.android.onlinefoodorderingapp.presentation.theme.spacing
@@ -112,6 +107,7 @@ fun OtpScreen1(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(MaterialTheme.spacing.buttonHeight)
+                            .testTag(stringResource(R.string.tt_verify_button))
                     ) {
                         Text(stringResource(R.string.verify_otp))
                     }
@@ -129,13 +125,13 @@ fun OtpInputField(
     otp: String,
     onOtpChange: (String) -> Unit
 ) {
-    val focusRequesters = List(6) { remember { FocusRequester() } }
+    val focusRequesters = List(AppConstants.COUNT_6) { remember { FocusRequester() } }
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         modifier = Modifier.fillMaxWidth()
     ) {
-        repeat(6) { index ->
+        repeat(AppConstants.COUNT_6) { index ->
             OutlinedTextField(
                 value = otp.getOrNull(index)?.toString() ?: AppConstants.EMPTY_STRING,
                 onValueChange = { value ->
@@ -158,7 +154,8 @@ fun OtpInputField(
                 modifier = Modifier
                     .weight(1f)
                     .height(MaterialTheme.spacing.buttonHeight)
-                    .focusRequester(focusRequesters[index]),
+                    .focusRequester(focusRequesters[index])
+                    .testTag("otp_input_$index"),
                 shape = MaterialTheme.shapes.large
             )
         }

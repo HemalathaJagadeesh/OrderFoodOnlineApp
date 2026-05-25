@@ -294,4 +294,3 @@ class RestaurantDetailViewModelTest : BehaviorSpec({
     }
 })
 
-

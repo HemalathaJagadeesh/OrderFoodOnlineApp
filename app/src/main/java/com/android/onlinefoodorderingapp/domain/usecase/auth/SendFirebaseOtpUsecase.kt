@@ -4,6 +4,7 @@ import android.app.Activity
 import com.android.onlinefoodorderingapp.domain.model.auth.AuthError
 import com.android.onlinefoodorderingapp.domain.model.auth.SendOtpResult
 import com.android.onlinefoodorderingapp.domain.repository.auth.AuthRepository
+import com.android.onlinefoodorderingapp.presentation.util.AppConstants
 import javax.inject.Inject
 
 class SendFirebaseOtpUsecase @Inject constructor(
@@ -16,12 +17,12 @@ class SendFirebaseOtpUsecase @Inject constructor(
         activityProvider: () -> Activity
     ): SendOtpResult {
 
-        // ✅ Validation
-        if (phone.length != 10) {
+        // Validation
+        if (phone.length != AppConstants.PHONE_LENGTH) {
             return SendOtpResult.Failure(AuthError.InvalidPhone)
         }
 
-        // ✅ Call repository
+        // Call repository
         return repo.sendOtp(
             phone = phone,
             countryCode = countryCode,

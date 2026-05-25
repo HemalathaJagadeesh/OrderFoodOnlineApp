@@ -56,6 +56,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -144,7 +145,11 @@ fun HomeScreen(
                 onCategoryClick = viewModel::selectTab,
                 onRestaurantClick = { viewModel.onEvent(HomeUiEvent.OnTopRestaurantsClick(it)) },
                 onProfileMenuAction = { viewModel.onEvent(HomeUiEvent.OnProfileMenuClick(it)) },
-                viewModel = viewModel
+
+                onSearchChange = viewModel::onSearchChange,
+                onSearchSubmit = viewModel::onSearchSubmit,
+                onToggleVeg = viewModel::onVegToggleChanged
+
             )
 
         }
@@ -161,7 +166,10 @@ fun HomeContent(
     onCategoryClick: (Category) -> Unit,
     onRestaurantClick: (Restaurant) -> Unit,
     onProfileMenuAction: (ProfileAction) -> Unit,
-    viewModel: HomeViewModel
+    onSearchChange: (String) -> Unit,
+    onSearchSubmit: () -> Unit,
+    onToggleVeg: (Boolean) -> Unit
+
 
 ) {
 
@@ -174,7 +182,7 @@ fun HomeContent(
         else -> (listState.firstVisibleItemScrollOffset / 600f).coerceIn(0f, 1f)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().testTag(stringResource(R.string.tt_home_screen))) {
 
         // SCROLL CONTENT
         LazyColumn(
@@ -198,7 +206,7 @@ fun HomeContent(
                 } else {
                     items(uiState.restaurants) { restaurant ->
                         RestaurantCard(
-                            restaurant = restaurant, onClick = { onRestaurantClick(restaurant) })
+                            restaurant = restaurant, onClick = { onRestaurantClick(restaurant) },)
                     }
                 }
 
@@ -245,7 +253,13 @@ fun HomeContent(
 
         //  COLLAPSING BANNER
         CollapsingBanner(
-            collapseFraction, onProfileMenuAction = onProfileMenuAction, isVeg, viewModel
+            collapseFraction, onProfileMenuAction = onProfileMenuAction, isVeg,
+
+            searchQuery = uiState.searchQuery,
+            onSearchChange = onSearchChange,
+            onSearchSubmit = onSearchSubmit,
+            onToggleVeg = onToggleVeg
+
         )
 
     }
@@ -327,7 +341,8 @@ fun FoodCategoryItem(category: Category, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .width(MaterialTheme.spacing.categoryHeight)
-            .clickable { onClick() },
+            .clickable { onClick() }
+            .testTag(stringResource(R.string.tt_category_name, category.name)),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
@@ -394,7 +409,8 @@ fun FlashSaleBanner() {
             modifier = Modifier
                 .padding(horizontal = MaterialTheme.spacing.small)
                 .fillMaxWidth()
-                .height(MaterialTheme.spacing.flashBannerHeight),
+                .height(MaterialTheme.spacing.flashBannerHeight)
+                .testTag(stringResource(R.string.tt_search_container)),
             shape = MaterialTheme.shapes.medium
         ) {
             val flashSaleUrl = stringResource(id = R.string.flash_sale_image_url)
@@ -419,7 +435,9 @@ fun RestaurantCard(
             .padding(
                 horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.small
             )
+            .testTag("restaurant_${restaurant.id}")
             .fillMaxWidth(), shape = MaterialTheme.shapes.medium, onClick = onClick
+
     ) {
         Column {
             AsyncImage(
@@ -490,7 +508,11 @@ fun CollapsingBanner(
     collapseFraction: Float,
     onProfileMenuAction: (ProfileAction) -> Unit,
     isVeg: Boolean,
-    viewModel: HomeViewModel
+    searchQuery: String,
+    onSearchChange: (String) -> Unit,
+    onSearchSubmit: () -> Unit,
+    onToggleVeg: (Boolean) -> Unit
+
 ) {
 
 
@@ -593,15 +615,13 @@ fun CollapsingBanner(
                 // Text(stringResource(R.string.search_for_food), color = Color.Gray)
 
                 TextField(
-                    value = viewModel.uiState.collectAsState().value.let { state ->
-                        if (state is HomeUiState.Success) state.searchQuery else ""
-                    },
-                    onValueChange = { viewModel.onSearchChange(it) },
+                    value = searchQuery,
+                    onValueChange = onSearchChange,
                     placeholder = {
                         Text(stringResource(R.string.search_for_food))
                     },
                     singleLine = true,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).testTag(stringResource(R.string.tt_search_input)),
                     colors = TextFieldDefaults.textFieldColors(
                         containerColor = Color.Transparent,
                         focusedIndicatorColor = Color.Transparent,
@@ -609,7 +629,10 @@ fun CollapsingBanner(
                     ),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(
-                        onSearch = { viewModel.onSearchSubmit() }))
+                        onSearch = {
+                            onSearchSubmit()
+                        }
+                    ))
 
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -622,7 +645,8 @@ fun CollapsingBanner(
 
                 Switch(
                     checked = isVeg,
-                    onCheckedChange = { viewModel.onVegToggleChanged(it) },
+                    onCheckedChange = onToggleVeg,
+                    modifier = Modifier.testTag(stringResource(R.string.tt_veg_toggle))
                 )
             }
         }
@@ -642,7 +666,8 @@ fun ProfileMenu(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .clickable { expanded = true },
+                .clickable { expanded = true }
+                .testTag("profile_icon"),
             placeholder = painterResource(R.drawable.ic_launcher_background),
             contentScale = ContentScale.Crop)
 

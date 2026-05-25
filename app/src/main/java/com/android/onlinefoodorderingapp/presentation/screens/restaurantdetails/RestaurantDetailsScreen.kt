@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -45,9 +46,11 @@ import coil.compose.AsyncImage
 import com.android.onlinefoodorderingapp.presentation.viewmodel.RestaurantDetailViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.android.onlinefoodorderingapp.R
+import com.android.onlinefoodorderingapp.domain.model.CartItem
 import com.android.onlinefoodorderingapp.domain.model.restaurantdetails.FoodItem
 import com.android.onlinefoodorderingapp.presentation.theme.AppColors
 import com.android.onlinefoodorderingapp.presentation.theme.spacing
@@ -56,6 +59,7 @@ import com.android.onlinefoodorderingapp.presentation.util.FoodFilter
 import com.android.onlinefoodorderingapp.presentation.util.RestaurantDetailUiState
 import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel
 import com.android.onlinefoodorderingapp.presentation.viewmodel.CartViewModel2
+import kotlin.collections.find
 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -66,79 +70,41 @@ fun RestaurantDetailsScreen(
     viewModel: RestaurantDetailViewModel = hiltViewModel()
 ) {
     Log.d("CartVM_RestDetailsScreen", "Instance: ${cartViewModel.hashCode()}")
-
-
-    LaunchedEffect(restaurantId) {
-        viewModel.loadData(restaurantId ?: AppConstants.EMPTY_STRING)
-    }
     val state by viewModel.state.collectAsState()
     val scrollState = rememberLazyListState()
     val foodItems by viewModel.filteredFoodItems.collectAsState()
 
-
-
-    val cartItems by cartViewModel.cartItems.collectAsState()
-//  Create map for fast lookup
-   /* val cartMap = remember(cartItems) {
-        cartItems.associateBy { it.foodItem.foodId }
-    }*/
-
-
+   // val listState = rememberLazyListState()
     val isCollapsed by remember {
         derivedStateOf { scrollState.firstVisibleItemScrollOffset > 200 }
     }
 
+    val cartItems by cartViewModel.cartItems.collectAsState()
 
-
-    Box {
-        LazyColumn(
-            state = scrollState,
-            contentPadding = PaddingValues(bottom = MaterialTheme.spacing.spacing120)
-        ) {
-
-            item {
-                HeroSection(isCollapsed)
-            }
-
-            item {
-                RestaurantInfoSection(state,viewModel)
-            }
-
-            item {
-                RecommendedSection()
-            }
-
-            items(
-
-                items = foodItems,
-                key = { it.foodId }
-            ) { foodItem ->
-
-                //val quantity = cartMap[foodItem.foodId]?.quantity ?: 0
-
-                val quantity = cartItems
-                    .find { it.foodItem.foodId == foodItem.foodId }
-                    ?.quantity ?: 0
-
-                FoodItemCard(
-                    item = foodItem,
-                    quantity = quantity,
-                    onItemClick = {
-                        navController.navigate("food_details/${foodItem.foodId}")
-                    },
-                    onAddClick = {
-                        //viewModel.onAddItemClick(foodItem)
-                       // navController.navigate("food_details/${foodItem.id}")
-                        cartViewModel.addToCart(foodItem,quantity)
-                        navController.navigate("food_details/${foodItem.foodId}")
-
-
-                    }
-                )
-
-            }
-        }
+    LaunchedEffect(restaurantId) {
+        viewModel.loadData(restaurantId ?: AppConstants.EMPTY_STRING)
     }
+
+
+
+    RestaurantDetailsContent(
+        state = state,
+        foodItems = foodItems,
+        cartItems = cartItems,
+        isCollapsed = isCollapsed,
+        listState = scrollState,
+        onFilterClick = viewModel::onFilterSelected,
+        onItemClick = { foodItem ->
+            navController.navigate("food_details/${foodItem.foodId}")
+        },
+        onAddClick = { foodItem, quantity ->
+            cartViewModel.addToCart(foodItem, quantity)
+            navController.navigate("food_details/${foodItem.foodId}")
+        }
+    )
+
+
+
 }
 
 /* ----------------------------- Hero ----------------------------- */
@@ -162,13 +128,18 @@ fun HeroSection(isCollapsed: Boolean) {
 /* ----------------------- Restaurant Info ------------------------ */
 
 @Composable
-fun RestaurantInfoSection(state: RestaurantDetailUiState, viewModel: RestaurantDetailViewModel) {
+fun RestaurantInfoSection(
+    state: RestaurantDetailUiState,
+    onFilterClick: (FoodFilter) -> Unit
+) {
     Column {
         RestaurantMetaRow()
+
         Spacer(Modifier.height(MaterialTheme.spacing.small))
 
-        FilterRow(selectedFilter = state.selectedFilter,
-            onFilterClick = viewModel::onFilterSelected
+        FilterRow(
+            selectedFilter = state.selectedFilter,
+            onFilterClick = onFilterClick
         )
 
         Spacer(Modifier.height(MaterialTheme.spacing.small))
@@ -245,6 +216,7 @@ fun FoodFilterItem(
             .border(MaterialTheme.spacing.border, Color(AppColors.borderGreen.toArgb()), MaterialTheme.shapes.small)
             .background(if (selected) Color.Green else Color.Transparent)
             .clickable { onClick() }
+            .testTag("filter_$text")
     ) {
         Text(
             text = text,
@@ -283,6 +255,7 @@ fun FoodItemCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .testTag("food_item_${item.foodId}")
             .padding(
                 horizontal = MaterialTheme.spacing.medium,
                 vertical = MaterialTheme.spacing.large
@@ -300,7 +273,8 @@ fun FoodItemCard(
             FoodItemImage(
                 imageUrl = item.image,
                 quantity = quantity,
-                onAddClick = onAddClick
+                onAddClick = onAddClick,
+                foodId = item.foodId,
             )
 
             Spacer(Modifier.width(MaterialTheme.spacing.medium))
@@ -314,6 +288,7 @@ fun FoodItemCard(
 private fun FoodItemImage(
     imageUrl: String,
     quantity: Int,
+    foodId: String,
     onAddClick: () -> Unit
 ) {
     Box(modifier = Modifier.size(MaterialTheme.spacing.spacing130)) {
@@ -349,6 +324,7 @@ private fun FoodItemImage(
                 .background(Color.White)
                 .border(MaterialTheme.spacing.border, Color.LightGray, MaterialTheme.shapes.small)
                 .clickable { onAddClick() }
+                .testTag("add_button")
                 .padding(
                     horizontal = MaterialTheme.spacing.small,
                     vertical = MaterialTheme.spacing.xSmall
@@ -414,5 +390,67 @@ fun VegNonVegIcon(isVeg: Boolean) {
                 .size(MaterialTheme.spacing.small)
                 .background(color, CircleShape)
         )
+    }
+}
+
+@Composable
+fun RestaurantDetailsContent(
+    state: RestaurantDetailUiState,
+    foodItems: List<FoodItem>,
+    cartItems: List<CartItem>,
+    isCollapsed: Boolean,
+    listState: LazyListState,
+    onFilterClick: (FoodFilter) -> Unit,
+    onItemClick: (FoodItem) -> Unit,
+    onAddClick: (FoodItem, Int) -> Unit
+) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .testTag("restaurant_details_screen")
+    ) {
+
+        LazyColumn(
+            state = listState,
+            contentPadding = PaddingValues(bottom = MaterialTheme.spacing.spacing120)
+        ) {
+
+            item {
+                HeroSection(isCollapsed)
+            }
+
+            item {
+                RestaurantInfoSection(
+                    state = state,
+                    onFilterClick = onFilterClick
+                )
+            }
+
+            item {
+                RecommendedSection()
+            }
+
+            items(
+                items = foodItems,
+                key = { it.foodId }
+            ) { foodItem ->
+
+                val quantity = cartItems
+                    .find { it.foodItem.foodId == foodItem.foodId }
+                    ?.quantity ?: 0
+
+                FoodItemCard(
+                    item = foodItem,
+                    quantity = quantity,
+                    onItemClick = {
+                        onItemClick(foodItem)
+                    },
+                    onAddClick = {
+                        onAddClick(foodItem, quantity)
+                    }
+                )
+            }
+        }
     }
 }

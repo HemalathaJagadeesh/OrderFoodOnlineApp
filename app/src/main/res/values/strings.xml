@@ -67,6 +67,32 @@
     <string name="add_item_with_price">Add Item ₹%1$s</string>
     <string name="desc_cart">Cart</string>
     <string name="price_format">₹%s</string>
+    <string name="foodie">Foodie</string>
+    <string name="tt_verify_button">verify_button</string>
+    <string name="tt_cart_total_text">cart_total_text</string>
+    <string name="tt_checkout_button">checkout_button</string>
+    <string name="test_tag_empty_cart">empty_cart</string>
+    <string name="test_tag_cart_list">cart_list</string>
+    <string name="test_tag_cart_item_id">cart_item_%1$s</string>
+    <string name="test_tag_remove">remove_%1$s</string>
+    <string name="test_tag_add">add_%1$s</string>
+    <string name="test_tag_delete">delete_%1$s</string>
+    <string name="tt_share_button">share_button</string>
+    <string name="tt_food_name_text">food_name</string>
+    <string name="tt_food_description">food_description</string>
+    <string name="tt_food_price">food_price</string>
+    <string name="tt_add_to_cart_button">add_to_cart_button</string>
+    <string name="tt_total_price_text">total_price_text</string>
+    <string name="tt_decrease_button">decrease_button</string>
+    <string name="tt_quantity_text">quantity_text</string>
+    <string name="tt_increase_button">increase_button</string>
+    <string name="tt_search_input">search_input</string>
+    <string name="tt_veg_toggle">veg_toggle</string>
+    <string name="tt_profile_icon">profile_icon</string>
+    <string name="tt_search_container">search_container</string>
+    <string name="test_tag_restaurant_id">restaurant_%1$d</string>
+    <string name="tt_category_name">category_%1$s</string>
+    <string name="tt_home_screen">home_screen</string>
 
 
 </resources>

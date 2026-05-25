@@ -1,12 +1,9 @@
 package com.android.onlinefoodorderingapp.presentation.viewmodel
 
 import app.cash.turbine.test
-import com.android.onlinefoodorderingapp.data.local.DummyData
 import com.android.onlinefoodorderingapp.domain.model.OptionItem
 import com.android.onlinefoodorderingapp.domain.usecase.cart.GetCartCountUseCase
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.maps.shouldContainKey
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.clearAllMocks
@@ -279,4 +276,3 @@ class FoodDetailViewModelTest : BehaviorSpec({
     }
 
 })
-

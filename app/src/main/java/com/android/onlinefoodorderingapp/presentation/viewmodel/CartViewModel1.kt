@@ -3,9 +3,7 @@ package com.android.onlinefoodorderingapp.presentation.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.android.onlinefoodorderingapp.data.local.entity.CartEntity
 import com.android.onlinefoodorderingapp.domain.model.restaurantdetails.FoodItem
-import com.android.onlinefoodorderingapp.domain.repository.cart.CartRepository
 import com.android.onlinefoodorderingapp.domain.usecase.cart.AddToCartUseCase
 import com.android.onlinefoodorderingapp.domain.usecase.cart.DecreaseQuantityUseCase
 import com.android.onlinefoodorderingapp.domain.usecase.cart.GetCartItemsUseCase
@@ -17,7 +15,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

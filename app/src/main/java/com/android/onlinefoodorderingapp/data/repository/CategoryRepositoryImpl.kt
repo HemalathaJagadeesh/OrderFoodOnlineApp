@@ -16,7 +16,8 @@ class CategoryRepositoryImpl @Inject constructor(
     private val restaurantDao: RestaurantDao
 ) : CategoryRepository {
     override suspend fun getCategories(): List<Category> {
-        return if (AppConfig.USE_FAKE_DATA) {
+        return DummyData.categories
+       /* return if (AppConfig.USE_FAKE_DATA) {
             delay(500)
             DummyData.categories
         } else {
@@ -28,7 +29,7 @@ class CategoryRepositoryImpl @Inject constructor(
             val apiResponse = api.getCategories()
             restaurantDao.insertCategories(apiResponse.map { it.toEntity() })
             return apiResponse.map { it.toCategory() }
-        }
+        }*/
     }
 }
 

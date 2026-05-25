@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -37,11 +38,13 @@ fun CartBottomBar(
             Text(
                 text = stringResource(R.string.cart_total,total),
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.testTag(stringResource(R.string.tt_cart_total_text))
             )
 
             Button(
-                onClick = onCheckoutClick
+                onClick = onCheckoutClick,
+                modifier = Modifier.testTag(stringResource(R.string.tt_checkout_button))
             ) {
                 Text(stringResource(R.string.checkout))
             }
